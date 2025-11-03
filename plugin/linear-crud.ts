@@ -192,6 +192,48 @@ export class LinearCRUD {
   }
 
   /**
+   * Add a comment to an issue (alias for createComment)
+   * 
+   * This method provides a more intuitive name for adding comments
+   * and is specifically used by the webhook event processor for
+   * posting OpenCode command responses back to Linear issues.
+   * 
+   * @param issueId - Issue to add comment to
+   * @param body - Comment content (supports Markdown formatting)
+   * @returns Created comment or undefined if creation fails
+   * @throws Error if issue not found or comment creation fails
+   */
+  async addComment(issueId: string, body: string): Promise<Comment | undefined> {
+    try {
+      console.log(`Adding comment to Linear issue:`, {
+        issueId,
+        bodyLength: body.length,
+        bodyPreview: body.substring(0, 100) + (body.length > 100 ? '...' : '')
+      })
+
+      const comment = await this.createComment(issueId, body)
+      
+      if (comment) {
+        console.log(`Successfully added comment to Linear issue:`, {
+          issueId,
+          commentId: comment.id,
+          createdAt: comment.createdAt
+        })
+      }
+      
+      return comment
+
+    } catch (error) {
+      console.error(`Failed to add comment to Linear issue:`, {
+        issueId,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        bodyLength: body.length
+      })
+      throw error
+    }
+  }
+
+  /**
    * Retrieve a specific comment by ID
    * 
    * @param commentId - Linear comment identifier
@@ -255,5 +297,16 @@ export class LinearCRUD {
  * 
  * Using a singleton pattern ensures we reuse the same authenticated
  * Linear client instance, avoiding repeated authentication overhead.
+ * This instance is used throughout the webhook processing system
+ * for creating issues, adding comments, and managing Linear data.
  */
 export const linearCRUD = new LinearCRUD()
+
+/**
+ * Export the LinearCRUD class as linearClient for backward compatibility
+ * 
+ * The webhook event processor references `linearClient.addComment()`,
+ * so we export the singleton instance with that name to maintain
+ * compatibility while keeping the class name descriptive.
+ */
+export const linearClient = linearCRUD
