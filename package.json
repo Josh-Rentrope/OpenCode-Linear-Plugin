@@ -1,10 +1,11 @@
 {
   "name": "linear-webhook-plugin",
+  "type": "module",
   "version": "1.0.0",
   "description": "Linear webhook integration for OpenCode with Express and Netlify support",
   "main": "server/webhook-server-express.js",
   "scripts": {
-    "dev:express": "node server/webhook-server-express.js",
+    "dev:express": "node server/webhook-server-express.ts",
     "dev:netlify": "netlify functions serve",
     "build:netlify": "echo 'No build step required - Netlify functions are ready to deploy'",
     "start": "npm run dev:express",
@@ -15,11 +16,10 @@
   },
   "dependencies": {
     "@linear/sdk": "^63.2.0",
+    "@netlify/functions": "^2.0.0",
     "@opencode-ai/plugin": "0.15.31",
-    "express": "^4.18.2",
-    "@netlify/functions": "^2.0.0"
-  },
-  "devDependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^4.18.2"
   },
   "keywords": [
     "linear",

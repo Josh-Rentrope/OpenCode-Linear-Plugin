@@ -12,8 +12,8 @@
  * - Error handling is centralized to ensure robustness
  */
 
-import type { LinearWebhookPayload } from './types/linear-webhook-types'
-import { isIssueWebhook, isCommentWebhook } from './types/linear-webhook-types'
+import type { LinearWebhookPayload } from './types/linear-webhook-types.ts'
+import { isIssueWebhook, isCommentWebhook } from './types/linear-webhook-types.ts'
 
 /**
  * Handler response interface

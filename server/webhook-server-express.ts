@@ -15,10 +15,12 @@
  * - Health check endpoint for monitoring
  */
 
-import express, { Request, Response, NextFunction } from 'express'
-import { verifyWebhookSignature, extractSignature } from './middleware/signature-verification'
-import { handleWebhook, handleHealthCheck } from './webhook-handlers'
-import type { LinearWebhookPayload } from './types/linear-webhook-types'
+import express from 'express'
+const { Request, Response, NextFunction } = express
+
+import { verifyWebhookSignature, extractSignature } from './middleware/signature-verification.ts'
+import { handleWebhook, handleHealthCheck } from './webhook-handlers.ts'
+import type { LinearWebhookPayload } from './types/linear-webhook-types.ts'
 
 /**
  * Express server configuration
@@ -220,10 +222,17 @@ function startServer(): express.Application {
   return app
 }
 
-// Start server if this file is run directly
-if (require.main === module) {
-  startServer()
+
+//console.log(process.argv, import.meta.url);
+const checkedPath = "file:///" + process.argv[1].replaceAll("\\","/");
+
+if (import.meta.url == checkedPath) {
+  startServer();
 }
+// Start server if this file is run directly
+// if (require.main === module) {
+//   startServer()
+// }
 
 // Export for testing or programmatic use
 export { createApp, setupRoutes, startServer, config }
