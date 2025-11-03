@@ -10,10 +10,11 @@
  * - Developers can create their own handlers with full payload access
  * - All handlers follow the same response interface for consistency
  * - Error handling is centralized to ensure robustness
+ * - OpenCode reference detection is integrated via WebhookEventProcessor
  */
 
-import type { LinearWebhookPayload } from './types/linear-webhook-types.ts'
-import { isIssueWebhook, isCommentWebhook } from './types/linear-webhook-types.ts'
+import type { LinearWebhookPayload } from './types/linear-webhook-types'
+import { webhookEventProcessor } from '../plugin/webhook-event-processor'
 
 /**
  * Handler response interface
@@ -70,16 +71,18 @@ export async function handleWebhook(
 }
 
 /**
- * Example Issue event handler
+ * Issue event handler with webhook event processor integration
  * Shows how to access the full Linear webhook payload for Issue events
+ * and integrates with the webhook event processing system
  * 
  * Developers can:
  * - Access any property from the full payload (payload.data, payload.updatedFrom, etc.)
  * - Filter by any criteria (state, assignee, priority, labels, etc.)
  * - Trigger custom workflows based on specific conditions
+ * - Process events through the centralized event processor
  */
 async function handleIssueEvent(payload: LinearWebhookPayload): Promise<HandlerResponse> {
-  if (!isIssueWebhook(payload)) {
+  if (payload.type !== 'Issue') {
     return {
       success: false,
       message: 'Invalid issue webhook payload'
@@ -108,6 +111,23 @@ async function handleIssueEvent(payload: LinearWebhookPayload): Promise<HandlerR
 
   console.log(` Issue ${payload.action}:`, issueInfo)
 
+  // Process the issue event through the centralized processor
+  const processResult = await webhookEventProcessor.processIssueEvent(payload)
+  
+  if (!processResult.success) {
+    console.error('❌ Issue event processing failed:', processResult.error)
+    // Still return success for the webhook, but note the processing error
+    return {
+      success: true,
+      message: `Issue ${payload.action} processed (event processing failed)`,
+      data: {
+        ...issueInfo,
+        eventProcessed: false,
+        eventError: processResult.error
+      }
+    }
+  }
+
   // Example custom filtering logic developers can implement:
   // if (issueData.priority === 'urgent' && payload.action === 'create') {
   //   await sendUrgentNotification(issueInfo)
@@ -116,21 +136,26 @@ async function handleIssueEvent(payload: LinearWebhookPayload): Promise<HandlerR
   return {
     success: true,
     message: `Issue ${payload.action} processed successfully`,
-    data: issueInfo
+    data: {
+      ...issueInfo,
+      eventProcessed: processResult.processed
+    }
   }
 }
 
 /**
- * Example Comment event handler
+ * Comment event handler with OpenCode reference detection
  * Shows how to access the full Linear webhook payload for Comment events
+ * and integrates with the OpenCode reference detection system
  * 
  * Developers can:
  * - Access comment body, author, reactions, etc.
  * - Check for mentions, attachments, quoted text
  * - Filter by issue, project, or user criteria
+ * - Process OpenCode references automatically
  */
 async function handleCommentEvent(payload: LinearWebhookPayload): Promise<HandlerResponse> {
-  if (!isCommentWebhook(payload)) {
+  if (payload.type !== 'Comment') {
     return {
       success: false,
       message: 'Invalid comment webhook payload'
@@ -164,6 +189,23 @@ async function handleCommentEvent(payload: LinearWebhookPayload): Promise<Handle
     body: commentInfo.body?.substring(0, 100) + (commentInfo.body?.length > 100 ? '...' : '') // Truncate for logging
   })
 
+  // Process OpenCode references in the comment
+  const processResult = await webhookEventProcessor.processCommentEvent(payload)
+  
+  if (!processResult.success) {
+    console.error('❌ OpenCode processing failed:', processResult.error)
+    // Still return success for the webhook, but note the processing error
+    return {
+      success: true,
+      message: `Comment ${payload.action} processed (OpenCode processing failed)`,
+      data: {
+        ...commentInfo,
+        openCodeProcessed: false,
+        openCodeError: processResult.error
+      }
+    }
+  }
+
   // Example custom logic developers can implement:
   // if (commentData.body?.includes('@urgent') && payload.action === 'create') {
   //   await flagForUrgentReview(commentInfo)
@@ -171,8 +213,12 @@ async function handleCommentEvent(payload: LinearWebhookPayload): Promise<Handle
   
   return {
     success: true,
-    message: `Comment ${payload.action} processed successfully`,
-    data: commentInfo
+    message: `Comment ${payload.action} processed successfully${processResult.processed ? ' with OpenCode references' : ''}`,
+    data: {
+      ...commentInfo,
+      openCodeProcessed: processResult.processed,
+      openCodeReferences: processResult.context?.references.length || 0
+    }
   }
 }
 

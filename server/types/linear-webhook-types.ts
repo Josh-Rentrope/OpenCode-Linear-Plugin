@@ -8,22 +8,18 @@
 
 // Import Linear's official webhook types
 import type { 
-  LinearWebhookPayload,
-  LinearWebhookEventType,
-  LinearWebhookEventTypeMap,
-  EntityWebhookPayload,
-  EntityWebhookPayloadWithIssueData,
-  EntityWebhookPayloadWithCommentData
+  WebhookPayload,
+  IssueWebhookPayload,
+  CommentWebhookPayload,
+  EntityWebhookPayload
 } from '@linear/sdk'
 
 // Re-export Linear's types for convenience
 export type {
-  LinearWebhookPayload,
-  LinearWebhookEventType,
-  LinearWebhookEventTypeMap,
-  EntityWebhookPayload,
-  EntityWebhookPayloadWithIssueData,
-  EntityWebhookPayloadWithCommentData
+  WebhookPayload as LinearWebhookPayload,
+  IssueWebhookPayload,
+  CommentWebhookPayload,
+  EntityWebhookPayload
 }
 
 /**
@@ -34,12 +30,12 @@ export type {
 
 export function isIssueWebhook(
   payload: LinearWebhookPayload
-): payload is EntityWebhookPayloadWithIssueData {
+): payload is IssueWebhookPayload {
   return payload.type === 'Issue'
 }
 
 export function isCommentWebhook(
   payload: LinearWebhookPayload
-): payload is EntityWebhookPayloadWithCommentData {
+): payload is CommentWebhookPayload {
   return payload.type === 'Comment'
 }
