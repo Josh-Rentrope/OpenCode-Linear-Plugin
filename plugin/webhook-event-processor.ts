@@ -6,7 +6,7 @@
  * This is intentionally minimal - downstream processes can handle complex actions.
  */
 
-import { OpenCodeReferenceDetector } from './opencode-reference-detector'
+import { OpenCodeReferenceDetector, OpenCodeReference } from './opencode-reference-detector'
 
 /**
  * Basic webhook payload interface for processing
@@ -28,7 +28,7 @@ export interface EventContext {
   /** The original webhook payload */
   payload: BaseWebhookPayload
   /** Detected OpenCode references in the event */
-  references: import('./opencode-reference-detector').OpenCodeReference[]
+  references: OpenCodeReference[]
   /** Event metadata for routing and logging */
   metadata: {
     eventType: string
