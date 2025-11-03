@@ -1,6 +1,5 @@
 {
   "name": "linear-webhook-plugin",
-  
   "version": "1.0.0",
   "description": "Linear webhook integration for OpenCode with Express and Netlify support",
   "main": "server/webhook-server-express.js",
@@ -33,5 +32,9 @@
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   }
 }
