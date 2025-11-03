@@ -16,11 +16,11 @@ export interface OpenCodeReference {
 }
 
 export class OpenCodeReferenceDetector {
-  /**
-   * Simple pattern to find @opencode mentions
-   * Using word boundary to avoid matching partial words
-   */
-  private static readonly OPENCODE_PATTERN = /@opencode\b/gi
+/**
+ * Pattern to find @opencode mentions and commands
+ * Captures each @opencode reference up to the next @opencode or end of line
+ */
+private static readonly OPENCODE_PATTERN = /@opencode\b[^@]*(?=@opencode|$)/gi
 
   /**
    * Detect all @opencode mentions in a comment

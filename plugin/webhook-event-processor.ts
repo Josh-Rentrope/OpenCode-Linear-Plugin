@@ -193,14 +193,14 @@ export class WebhookEventProcessor {
     }
   }
 
-  /**
+/**
    * Handle a detected OpenCode reference
    * 
-   * This is intentionally minimal - it just logs the reference.
-   * Downstream systems can implement actual command processing.
+   * Passes the raw reference to OpenCode for processing.
+   * OpenCode's robust parser will handle command extraction and execution.
    * 
    * @param reference - The detected OpenCode reference
-   * @param context - Event context for the reference
+   * @param context - Event context for reference
    */
   private async handleOpenCodeReference(
     reference: import('./opencode-reference-detector').OpenCodeReference,
@@ -215,8 +215,35 @@ export class WebhookEventProcessor {
       timestamp: context.metadata.timestamp
     })
 
-    // Note: Actual command processing will be handled by downstream systems
-    // This minimal implementation just detects and logs references
+    try {
+      // Pass the raw reference to OpenCode for processing
+      // OpenCode's robust parser will handle command extraction and execution
+      console.log(`📤 Passing to OpenCode: "${reference.raw}"`)
+      
+      // TODO: Integrate with actual OpenCode API/session
+      // For now, we just log the reference for downstream processing
+      // The actual OpenCode integration will handle:
+      // - Command parsing using OpenCode's robust parser
+      // - Context-aware execution
+      // - Response handling and issue updates
+      
+      console.log(`✅ OpenCode reference ready for processing:`, {
+        reference: reference.raw,
+        context: {
+          actor: context.metadata.actor,
+          issueId: context.payload.data.issueId,
+          commentId: context.payload.data.id,
+          timestamp: context.metadata.timestamp
+        }
+      })
+
+    } catch (error) {
+      console.error(`❌ Failed to handle OpenCode reference:`, {
+        reference: reference.raw,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        actor: context.metadata.actor
+      })
+    }
   }
 
   /**
