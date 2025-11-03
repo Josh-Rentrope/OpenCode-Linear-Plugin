@@ -27,8 +27,14 @@ export class LinearCRUD {
       description: data.description
     }
 
-    // Use nullish coalescing and optional chaining to avoid if statements
-    issueData.teamId = data.teamId ? (await client.team(data.teamId))?.id : undefined
+    // Get teamId - either provided or first available team
+    if (data.teamId) {
+      issueData.teamId = (await client.team(data.teamId))?.id
+    } else {
+      // Get first available team if none provided
+      const teams = await client.teams({ first: 1 })
+      issueData.teamId = teams.nodes[0]?.id
+    }
     issueData.assigneeId = data.assigneeId ? (await client.user(data.assigneeId))?.id : undefined
     issueData.stateId = data.stateId ? (await client.workflowState(data.stateId))?.id : undefined
     
