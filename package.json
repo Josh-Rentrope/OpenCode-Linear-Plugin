@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "@linear/sdk": "^63.2.0",
-    "@opencode-ai/plugin": "0.15.31"
+    "@opencode-ai/plugin": "0.15.31",
+    "express": "^4.18.2",
+    "@netlify/functions": "^2.0.0"
   }
 }
