@@ -5,7 +5,7 @@
  * and that the processing pipeline works end-to-end.
  */
 
-import { handleWebhook } from '../server/webhook-handlers'
+import { handleWebhook, handleHealthCheck } from '../server/webhook-handlers'
 
 /**
  * Create a minimal webhook payload that matches the expected structure
@@ -124,7 +124,6 @@ async function testHealthCheck() {
   console.log('\n🧪 Testing health check...')
   
   try {
-    const { handleHealthCheck } = await import('../server/webhook-handlers')
     const result = handleHealthCheck()
     
     console.log('✅ Health check result:', {

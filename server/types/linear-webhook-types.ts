@@ -29,13 +29,13 @@ export type {
  */
 
 export function isIssueWebhook(
-  payload: LinearWebhookPayload
+  payload: WebhookPayload
 ): payload is IssueWebhookPayload {
   return payload.type === 'Issue'
 }
 
 export function isCommentWebhook(
-  payload: LinearWebhookPayload
+  payload: WebhookPayload
 ): payload is CommentWebhookPayload {
   return payload.type === 'Comment'
 }

@@ -17,7 +17,7 @@
  * 1. Webhook Reception → 2. Event Routing → 3. Handler Processing → 4. OpenCode Integration → 5. Response
  */
 
-import type { LinearWebhookPayload } from './types/linear-webhook-types'
+import type { LinearWebhookPayload, IssueWebhookPayload, CommentWebhookPayload } from './types/linear-webhook-types'
 
 // Extended interface to handle Linear webhook payloads with proper typing
 interface ExtendedWebhookPayload extends LinearWebhookPayload {
@@ -152,7 +152,7 @@ case 'Issue':
  * @param payload - Linear webhook payload for Issue events
  * @returns Handler response with processing results and issue information
  */
-async function handleIssueEvent(payload: LinearWebhookPayload): Promise<HandlerResponse> {
+async function handleIssueEvent(payload: ExtendedWebhookPayload): Promise<HandlerResponse> {
   // Validate payload type to ensure proper routing
   if (payload.type !== 'Issue') {
     return {
@@ -216,7 +216,7 @@ async function handleIssueEvent(payload: LinearWebhookPayload): Promise<HandlerR
 
   // Process the issue event through the centralized event processor
   // This enables OpenCode integration, TUI streaming, and session management
-  const processResult = await webhookEventProcessor.processIssueEvent(payload)
+  const processResult = await webhookEventProcessor.processIssueEvent(payload as any)
   
   // Handle processing errors gracefully while maintaining webhook delivery success
   if (!processResult.success) {
@@ -267,7 +267,7 @@ async function handleIssueEvent(payload: LinearWebhookPayload): Promise<HandlerR
     data: {
       ...issueInfo,
       eventProcessed: processResult.processed,
-      processingTime: processResult.context?.metadata?.processedAt
+      processingTime: processResult.context?.metadata?.timestamp
     }
   }
 }
@@ -283,7 +283,7 @@ async function handleIssueEvent(payload: LinearWebhookPayload): Promise<HandlerR
  * - Filter by issue, project, or user criteria
  * - Process OpenCode references automatically
  */
-async function handleCommentEvent(payload: LinearWebhookPayload): Promise<HandlerResponse> {
+async function handleCommentEvent(payload: ExtendedWebhookPayload): Promise<HandlerResponse> {
   if (payload.type !== 'Comment') {
     return {
       success: false,
@@ -319,7 +319,7 @@ async function handleCommentEvent(payload: LinearWebhookPayload): Promise<Handle
   })
 
   // Process OpenCode references in the comment
-  const processResult = await webhookEventProcessor.processCommentEvent(payload)
+  const processResult = await webhookEventProcessor.processCommentEvent(payload as any)
   
   if (!processResult.success) {
     console.error('❌ OpenCode processing failed:', processResult.error)
