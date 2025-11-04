@@ -7,7 +7,7 @@
  */
 
 import { OpenCodeReferenceDetector, OpenCodeReference } from './opencode-reference-detector'
-import { tuiEventStreamManager, LinearStreamEvent } from '../opencode/tui-event-stream'
+import { tuiEventStreamManager } from '../opencode/tui-event-stream'
 import { linearSessionManager } from '../opencode/session-manager'
 import { getLinearCRUD } from './linear-crud'
 /**
