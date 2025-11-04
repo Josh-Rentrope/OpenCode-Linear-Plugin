@@ -18,7 +18,18 @@
  */
 
 import type { LinearWebhookPayload } from './types/linear-webhook-types'
-import { webhookEventProcessor } from '../plugin/webhook-event-processor'
+
+// Extended interface to handle Linear webhook payloads with proper typing
+interface ExtendedWebhookPayload extends LinearWebhookPayload {
+  type: string
+  action: string
+  actor?: any
+  createdAt?: string
+  data?: any
+  url?: string
+  updatedFrom?: any
+}
+import { webhookEventProcessor } from '../plugin/LinearPlugin/webhook-event-processor'
 
 /**
  * Standardized handler response interface
@@ -54,7 +65,7 @@ export interface HandlerResponse {
  * @returns Standardized handler response with processing results
  */
 export async function handleWebhook(
-  payload: LinearWebhookPayload
+  payload: ExtendedWebhookPayload
 ): Promise<HandlerResponse> {
   try {
     // Log comprehensive webhook information for debugging and monitoring

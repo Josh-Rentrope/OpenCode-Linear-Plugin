@@ -39,6 +39,12 @@ export interface EventContext {
     timestamp: string
     entityId: string
   }
+  /** Processing options */
+  options: {
+    createSession?: boolean
+    timeout?: number
+    priority?: 'low' | 'medium' | 'high'
+  }
 }
 
 /**
@@ -110,6 +116,11 @@ export class WebhookEventProcessor {
           actor: payload.actor ? ('name' in payload.actor ? payload.actor.name : 'Unknown') : 'Unknown',
           timestamp: new Date(payload.createdAt).toISOString(),
           entityId: payload.data.id
+        },
+        options: {
+          createSession: false,
+          timeout: 300000, // 5 minutes default
+          priority: 'medium'
         }
       }
 
@@ -206,6 +217,11 @@ export class WebhookEventProcessor {
           actor: payload.actor ? ('name' in payload.actor ? payload.actor.name : 'Unknown') : 'Unknown',
           timestamp: new Date(payload.createdAt).toISOString(),
           entityId: payload.data.id
+        },
+        options: {
+          createSession: false,
+          timeout: 300000, // 5 minutes default
+          priority: 'medium'
         }
       }
 
@@ -327,7 +343,7 @@ export class WebhookEventProcessor {
     
     // First part is the action, rest are arguments
     const action = parts[0] || 'help'
-    const arguments: string[] = []
+    const cmdArguments: string[] = []
     const options: Record<string, string> = {}
     
     // Parse arguments and options (key=value or --flag format)
@@ -339,11 +355,11 @@ export class WebhookEventProcessor {
       } else if (part.startsWith('--')) {
         options[part.substring(2)] = 'true'
       } else {
-        arguments.push(part)
+        cmdArguments.push(part)
       }
     }
     
-    return { action, arguments, options }
+    return { action, arguments: cmdArguments, options }
   }
 
   /**
@@ -426,7 +442,7 @@ export class WebhookEventProcessor {
       },
       command: {
         raw: reference.raw,
-        position: reference.position
+        position: typeof reference.position === 'number' ? reference.position : reference.position.start
       },
       metadata: {
         webhookType: payload.type,
@@ -447,7 +463,7 @@ export class WebhookEventProcessor {
    * @returns Command execution result with success status and response data
    */
   private async executeOpenCodeCommand(
-    command: { action: string; args: string[]; options: Record<string, string> },
+    command: { action: string; arguments: string[]; options: Record<string, string> },
     context: any
   ): Promise<{
     success: boolean

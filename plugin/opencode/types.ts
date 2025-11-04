@@ -210,5 +210,6 @@ export interface EventProcessingContext {
     createSession?: boolean
     timeout?: number
     priority?: 'low' | 'medium' | 'high'
+    source?: string
   }
 }

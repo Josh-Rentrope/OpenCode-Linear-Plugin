@@ -12,9 +12,15 @@ import { handleWebhook } from '../server/webhook-handlers'
  */
 function createMockCommentPayload(body: string) {
   return {
-    _webhook: 'test-webhook-id',
+    webhookId: 'webhook-123',
     lastSyncId: 0,
     success: true,
+    _request: {
+      id: 'req-123',
+      headers: {},
+      method: 'POST'
+    },
+    paginate: {},
     webhook: {
       id: 'webhook-123',
       url: 'https://example.com/webhook',
@@ -58,7 +64,7 @@ async function testCommentWithOpenCode() {
   const payload = createMockCommentPayload('Hey @opencode can you help me with this?')
   
   try {
-    const result = await handleWebhook(payload)
+    const result = await handleWebhook(payload as any)
     
     console.log('✅ Handler result:', {
       success: result.success,
@@ -89,7 +95,7 @@ async function testCommentWithoutOpenCode() {
   const payload = createMockCommentPayload('This is a regular comment without mentions.')
   
   try {
-    const result = await handleWebhook(payload)
+    const result = await handleWebhook(payload as any)
     
     console.log('✅ Handler result:', {
       success: result.success,

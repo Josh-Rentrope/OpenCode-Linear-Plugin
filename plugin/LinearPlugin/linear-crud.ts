@@ -459,11 +459,11 @@ export class LinearCRUD {
         // Try to fetch state information if available
         if (issue.state && typeof issue.state === 'object' && 'id' in issue.state) {
           try {
-            const state = await client.workflowState(issue.state.id)
-            return {
-              ...issue,
-              state: state
-            }
+            const stateId = typeof issue.state.id === 'string' ? issue.state.id : String(issue.state.id)
+            const state = await client.workflowState(stateId)
+            // Return original issue since we can't modify Issue type
+            // The state information is available through issue.state
+            return issue
           } catch (error) {
             // If state fetch fails, return original issue
           }

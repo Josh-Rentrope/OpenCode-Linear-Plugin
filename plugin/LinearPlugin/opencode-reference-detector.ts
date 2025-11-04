@@ -19,6 +19,14 @@ export interface OpenCodeReference {
   position: { start: number; end: number }
   /** The complete comment text providing full context for the reference */
   context: string
+  /** Reference type */
+  type: 'command' | 'mention' | 'tag'
+  /** Extracted command if applicable */
+  command?: {
+    action: string
+    arguments: string[]
+    options: Record<string, string>
+  }
 }
 
 export class OpenCodeReferenceDetector {
@@ -57,13 +65,18 @@ export class OpenCodeReferenceDetector {
 
     // Execute regex globally to find all matches in the comment
     while ((match = this.OPENCODE_PATTERN.exec(comment)) !== null) {
+      const rawReference = match[0]
+      const command = this.extractCommand(rawReference)
+      
       references.push({
-        raw: match[0], // The complete matched @opencode reference
+        raw: rawReference, // The complete matched @opencode reference
         position: {
           start: match.index, // Starting character position in original text
-          end: match.index + match[0].length // Ending character position
+          end: match.index + rawReference.length // Ending character position
         },
-        context: comment.trim() // Full comment text for downstream processing
+        context: comment.trim(), // Full comment text for downstream processing
+        type: command.action ? 'command' : 'mention',
+        command: command.action ? command : undefined
       })
     }
 
@@ -85,6 +98,82 @@ export class OpenCodeReferenceDetector {
     // Reset regex to ensure accurate test results
     this.OPENCODE_PATTERN.lastIndex = 0
     return this.OPENCODE_PATTERN.test(comment)
+  }
+
+  /**
+   * Extract structured command information from raw OpenCode reference
+   * 
+   * @param rawReference - The raw @opencode reference text
+   * @returns Structured command object with action, arguments, and options
+   */
+  private static extractCommand(rawReference: string): {
+    action: string
+    arguments: string[]
+    options: Record<string, string>
+  } {
+    // Remove @opencode prefix and trim whitespace
+    const commandText = rawReference.replace(/@opencode/i, '').trim()
+    
+    // Split into parts while preserving quoted strings
+    const parts = this.parseCommandLine(commandText)
+    
+    // First part is the action, rest are arguments
+    const action = parts[0] || 'help'
+    const cmdArguments: string[] = []
+    const options: Record<string, string> = {}
+    
+    // Parse arguments and options (key=value or --flag format)
+    for (let i = 1; i < parts.length; i++) {
+      const part = parts[i]
+      if (part.startsWith('--') && part.includes('=')) {
+        const [key, value] = part.substring(2).split('=', 2)
+        options[key] = value
+      } else if (part.startsWith('--')) {
+        options[part.substring(2)] = 'true'
+      } else {
+        cmdArguments.push(part)
+      }
+    }
+    
+    return { action, arguments: cmdArguments, options }
+  }
+
+  /**
+   * Parse command line string preserving quoted arguments
+   * 
+   * @param commandLine - Raw command line text
+   * @returns Array of parsed command parts
+   */
+  private static parseCommandLine(commandLine: string): string[] {
+    const parts: string[] = []
+    let current = ''
+    let inQuotes = false
+    let quoteChar = ''
+    
+    for (let i = 0; i < commandLine.length; i++) {
+      const char = commandLine[i]
+      
+      if ((char === '"' || char === "'") && !inQuotes) {
+        inQuotes = true
+        quoteChar = char
+      } else if (char === quoteChar && inQuotes) {
+        inQuotes = false
+        quoteChar = ''
+      } else if (char === ' ' && !inQuotes) {
+        if (current) {
+          parts.push(current)
+          current = ''
+        }
+      } else {
+        current += char
+      }
+    }
+    
+    if (current) {
+      parts.push(current)
+    }
+    
+    return parts
   }
 
   /**

@@ -6,8 +6,6 @@
  * Provides context preservation across multiple command interactions.
  */
 
-import { v4 as uuidv4 } from 'uuid'
-import * as cron from 'node-cron'
 import type { SessionContext, SessionState, SessionCommand, EventProcessingContext } from './types'
 
 /**
@@ -47,7 +45,7 @@ export class SessionManager {
   }
   
   /** Cleanup task reference */
-  private cleanupTask: cron.ScheduledTask | null = null
+  private cleanupTask: any = null
 
   /**
    * Initialize session manager
@@ -55,7 +53,8 @@ export class SessionManager {
    * Starts the cleanup task and prepares session management.
    */
   constructor() {
-    this.startCleanupTask()
+    // Initialize cleanup asynchronously
+    this.startCleanupTask().catch(console.error)
     console.log('Session Manager initialized')
   }
 
@@ -72,8 +71,10 @@ export class SessionManager {
     command: { action: string; arguments: string[]; options: Record<string, string> },
     options: { timeout?: number; priority?: 'low' | 'medium' | 'high' } = {}
   ): SessionState {
-    const sessionId = uuidv4()
     const now = new Date().toISOString()
+    
+    // Generate UUID using simple fallback (avoiding import issues)
+    const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
     
     const sessionContext: SessionContext = {
       id: sessionId,
@@ -183,7 +184,9 @@ export class SessionManager {
     }
 
     const startTime = Date.now()
-    const commandId = uuidv4()
+    
+    // Generate command ID using simple fallback
+    const commandId = 'cmd_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
     
     try {
       // Execute the command through OpenCode agent system
@@ -421,12 +424,11 @@ export class SessionManager {
   /**
    * Start cleanup task for expired sessions
    */
-  private startCleanupTask(): void {
+  private async startCleanupTask(): Promise<void> {
+    const cron = (await import('node-cron')).default
     // Run cleanup every 5 minutes
     this.cleanupTask = cron.schedule(`*/${this.config.cleanupInterval} * * * *`, () => {
       this.cleanup()
-    }, {
-      scheduled: true
     })
     
     console.log(`Session cleanup task started (every ${this.config.cleanupInterval} minutes)`)

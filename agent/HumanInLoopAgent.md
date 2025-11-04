@@ -296,10 +296,3 @@ The agent includes comprehensive test coverage:
 - Security and permission tests
 - Performance and load tests
 
-## Compliance and Governance
-
-- **SOX Compliance**: Financial controls and approvals
-- **GDPR Compliance**: Data protection and privacy
-- **HIPAA Compliance**: Healthcare data handling
-- **ISO 27001**: Information security management
-- **Custom Policies**: Organization-specific requirements
