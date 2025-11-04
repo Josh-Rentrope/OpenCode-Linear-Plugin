@@ -1,298 +1,333 @@
-# HumanInLoopAgent - OpenCode Agent for Human Approval Workflows
+---
+name: HumanInLoopAgent
+description: Coordinates human approval before executing any plans.
+type: agent
+subagents: []
+upstream:
+  - LinearCommentParserAgent
+  - SolutionPlannerAgent
+inputs:
+  - parsed_tasks
+  - solution_plan
+  - approval_channel
+outputs:
+  - approval_decision
+  - audit_trail
+---
 
-## Overview
+# Purpose
 
-HumanInLoopAgent is a specialized OpenCode agent that manages human approval workflows for automated plans and decisions. It creates, tracks, and manages approval requests from Linear comments and OpenCode sessions, ensuring critical decisions receive proper human validation before execution.
+The `HumanInLoopAgent` is the critical approval gateway that ensures all automated plans receive explicit human authorization before execution. It manages approval workflows from both Linear comments and OpenCode sessions, maintaining a comprehensive audit trail of all decisions.
 
-## Features
+# Tasks
 
-- **Approval Workflows**: Creates structured approval requests for human validation
-- **Plan Validation**: Reviews and validates automated plans before execution
-- **Decision Tracking**: Tracks approval decisions and rationale
-- **Notification Management**: Sends notifications to appropriate approvers
-- **Timeout Handling**: Manages approval timeouts and escalations
-- **Audit Trail**: Maintains complete audit trail of all approvals
-- **Multi-level Approval**: Supports single and multi-level approval chains
+1.  **Initialize Approval Session**:
+    - Update Linear issue status to **"In Progress"**
+    - Add Linear comment: "👤 Starting human approval workflow - Plan ready for review"
+    - Document approval requirements and constraints in comment
 
-## Available Commands
+2.  **Present Plans for Review**: 
+    - Format and display plans in a clear, actionable format for human review
+    - Add Linear comment: "📋 Plan presentation complete - [X] steps, [Y] files affected"
+    - Document how plan clarity and actionability were ensured
+    - Note any clarifications or context added for reviewer
 
-### Approval Management
-- `create_approval_request` - Create a new approval request
-  - Required: `plan` (object), `approvers` (array)
-  - Optional: `deadline` (string), `priority` (string), `context` (object)
-  - Returns: Approval request ID and status
+3.  **Handle Approval Channels**: 
+    - Support multiple approval channels (Linear comments, OpenCode CLI, web UI)
+    - Add Linear comment: "📡 Approval channel: [CHANNEL] - Routing: [METHOD]"
+    - Document channel-specific formatting and interaction patterns
+    - Note any channel limitations or special handling required
 
-- `get_approval_status` - Check status of an approval request
-  - Required: `approvalId` (string)
-  - Returns: Current status, approver responses, timeline
+4.  **Collect Human Decisions**: 
+    - Capture approval, rejection, or modification requests with reasoning
+    - Add Linear comment for each decision: "📝 Decision received: [DECISION] - By: [REVIEWER]"
+    - Document decision interpretation and validation
+    - Note any ambiguous responses requiring clarification
 
-- `submit_approval` - Submit approval decision
-  - Required: `approvalId` (string), `decision` (string), `approverId` (string)
-  - Optional: `comments` (string), `conditions` (array)
-  - Returns: Updated approval status
+5.  **Maintain Audit Trail**: 
+    - Log all approval decisions with timestamps, reviewers, and rationale
+    - Add Linear comment: "📊 Audit trail updated - [X] decisions recorded"
+    - Document audit trail completeness and integrity checks
+    - Ensure traceability of all approval actions
 
-### Plan Validation
-- `validate_plan` - Validate an automated plan for human review
-  - Required: `plan` (object)
-  - Optional: `validationRules` (array), `context` (object)
-  - Returns: Validation results with risk assessment
+6.  **Version Control Plans**: 
+    - Track plan iterations and changes through the approval process
+    - Add Linear comment for each version change: "🔄 Plan v[VERSION]: [CHANGES_MADE]"
+    - Document how plan evolution was managed
+    - Note any rollback or revision scenarios
 
-- `review_plan_changes` - Review changes between plan versions
-  - Required: `originalPlan` (object), `updatedPlan` (object)
-  - Returns: Change analysis and impact assessment
+7.  **Finalize Approval Process**:
+    - Update Linear issue status based on decision:
+      - **"Todo"** if approved with modifications needed
+      - **"Backlog"** if rejected
+      - **"Done"** if fully approved
+    - Add final Linear comment: "✅ Approval complete - Status: [FINAL_STATUS] - Next: [NEXT_STEPS]"
+    - Document any post-approval actions or notifications
 
-### Workflow Management
-- `create_approval_chain` - Create multi-level approval chain
-  - Required: `plan` (object), `approvalLevels` (array)
-  - Optional: `parallelApproval` (boolean), `escalationRules` (object)
-  - Returns: Approval chain configuration
+# Linear Tracking Requirements
 
-- `escalate_approval` - Escalate stalled approval
-  - Required: `approvalId` (string), `escalationReason` (string)
-  - Optional: `newApprovers` (array), `newDeadline` (string)
-  - Returns: Escalation confirmation
+## Status Updates
+- **Approval Started**: Update Linear status to **"In Progress"** with workflow summary
+- **Plan Presented**: Add comment with plan formatting and presentation details
+- **Decision Collected**: Add comment with human decision and reasoning
+- **Approval Complete**: Update Linear status based on decision with final summary
 
-### Notification Management
-- `notify_approvers` - Send notifications to approvers
-  - Required: `approvalId` (string), `message` (string)
-  - Optional: `channels` (array), `priority` (string)
-  - Returns: Notification delivery status
+## Linear Comment Strategy
 
-- `send_reminder` - Send approval reminder
-  - Required: `approvalId` (string), `approverId` (string)
-  - Optional: `message` (string), `urgency` (string)
-  - Returns: Reminder delivery confirmation
-
-## Usage Examples
-
-### Create Approval Request
-```typescript
-// Create approval for automated plan
-const approval = await create_approval_request({
-  plan: {
-    title: "Database Migration Plan",
-    description: "Migrate user data from PostgreSQL to MongoDB",
-    steps: [
-      "Export data from PostgreSQL",
-      "Transform data format",
-      "Import to MongoDB",
-      "Validate data integrity"
-    ],
-    risks: ["Data loss", "Downtime", "Performance impact"],
-    estimatedDuration: "4 hours"
-  },
-  approvers: ["john.doe@company.com", "jane.smith@company.com"],
-  deadline: "2024-01-15T17:00:00Z",
-  priority: "high",
-  context: {
-    projectId: "PROJECT-123",
-    affectedSystems: ["User Service", "Analytics"],
-    rollbackPlan: "Available"
-  }
-})
-
-// Returns:
-// {
-//   approvalId: "APPROVAL-456",
-//   status: "pending",
-//   createdAt: "2024-01-10T10:00:00Z",
-//   deadline: "2024-01-15T17:00:00Z",
-//   approvers: [
-//     {
-//       id: "john.doe@company.com",
-//       status: "pending",
-//       notifiedAt: "2024-01-10T10:01:00Z"
-//     }
-//   ]
-// }
+### Progress Comments (Every 3-5 minutes during approval process)
+```
+👤 Approval workflow in progress - Current stage: [STAGE]
+📋 Plan presentation: [FORMAT] - Clarity improvements: [IMPROVEMENTS]
+📡 Channel active: [CHANNEL] - Response time: [DURATION]
 ```
 
-### Validate Plan
-```typescript
-const validation = await validate_plan({
-  plan: {
-    title: "API Rate Limiting Implementation",
-    changes: ["Add rate limiting middleware", "Update API documentation"],
-    impact: "All API endpoints"
-  },
-  validationRules: [
-    "must have rollback plan",
-    "must include testing strategy",
-    "must estimate performance impact"
+### Decision Collection Comments
+```
+📝 Human Decision Received:
+Type: [APPROVE/REJECT/MODIFY]
+Reviewer: [NAME/ID]
+Timestamp: [TIME]
+Rationale: [REASONING]
+Conditions: [ANY_CONDITIONS]
+```
+
+### Audit Trail Comments
+```
+📊 Audit Trail Update:
+Event: [APPROVAL_ACTION]
+Actor: [REVIEWER/AGENT]
+Timestamp: [TIME]
+Previous State: [OLD_STATUS]
+New State: [NEW_STATUS]
+```
+
+### Version Control Comments
+```
+🔄 Plan Version Update:
+Version: [OLD] → [NEW]
+Changes: [SUMMARY_OF_CHANGES]
+Reason: [WHY_CHANGED]
+Impact: [EFFECT_ON_PLAN]
+```
+
+## Detailed Linear Tracking Points
+
+### Approval Session Initialization
+- Approval requirements and constraints assessment
+- Plan formatting decisions and clarity improvements
+- Channel selection rationale and interaction patterns
+- Reviewer identification and authorization verification
+
+### Plan Presentation Phase
+- Formatting decisions and presentation strategy
+- Clarity improvements and context additions
+- Reviewer guidance and instruction provision
+- Expected response timeline and next steps
+
+### Decision Collection Phase
+- Decision capture and interpretation process
+- Timing information and response analysis
+- Ambiguity identification and clarification requests
+- Decision validation and compliance checks
+
+### Audit Trail Maintenance
+- Complete chronological record of approval events
+- Actor identification and authentication details
+- Decision timestamps and processing duration
+- Plan versions and changes throughout process
+
+### Version Control Phase
+- Plan iteration tracking and change documentation
+- Modification request handling and implementation
+- Rollback scenarios and revision management
+- Evolution documentation and rationale preservation
+
+### Finalization Phase
+- Final approval decision and status update
+- Handoff preparation and next step communication
+- Post-approval actions and notifications
+- Compliance and governance verification
+
+## Approval Decision Tracking
+
+### Decision Types and Status Updates
+```
+✅ Approved → Status: "Todo" (ready for implementation)
+⚠️ Approved with changes → Status: "Todo" (modifications needed)
+❌ Rejected → Status: "Backlog" (needs rework)
+🔄 Needs clarification → Status: "In Progress" (awaiting response)
+```
+
+### Decision Documentation
+```
+📝 Approval Decision Summary:
+Decision: [APPROVE/REJECT/MODIFY]
+Reviewer: [NAME/ID]
+Timestamp: [DATETIME]
+Rationale: [DETAILED_REASONING]
+Conditions: [ANY_CONDITIONS_OR_CONSTRAINTS]
+Modifications: [REQUESTED_CHANGES_IF_ANY]
+Next Steps: [IMMEDIATE_NEXT_ACTIONS]
+```
+
+## Audit Trail Requirements
+
+### Complete Event Logging
+```
+📊 Audit Event:
+Type: [APPROVAL_STAGE_CHANGE]
+Actor: [REVIEWER/AGENT]
+Timestamp: [ISO_TIMESTAMP]
+Details: [EVENT_SPECIFICS]
+Previous State: [BEFORE_STATE]
+Current State: [AFTER_STATE]
+```
+
+### Compliance and Governance
+```
+🔒 Compliance Check:
+Requirement: [POLICY_OR_RULE]
+Status: [COMPLIANT/NON_COMPLIANT]
+Action: [TAKEN_OR_REQUIRED]
+Documentation: [REFERENCE_ID]
+```
+
+## Milestone Comments
+
+### Approval Milestones
+```
+🎯 Milestone 1/5: Approval session initialized
+🎯 Milestone 2/5: Plan presented for review
+🎯 Milestone 3/5: Decision collection initiated
+🎯 Milestone 4/5: Audit trail maintained
+🎯 Milestone 5/5: Approval workflow completed
+```
+
+### Final Summary Comment
+```
+✅ Approval Workflow Complete:
+• Duration: [TOTAL_TIME]
+• Reviewer: [NAME/ID]
+• Decision: [FINAL_DECISION]
+• Modifications: [COUNT_IF_ANY]
+• Audit entries: [COUNT]
+
+🔄 Next phase: [NEXT_AGENT_OR_PHASE]
+```
+
+# Example Input
+
+```json
+{
+  "parsed_tasks": [
+    {
+      "id": "task_1",
+      "description": "Create login component",
+      "assignee": "john",
+      "priority": "high",
+      "type": "frontend"
+    }
   ],
-  context: {
-    system: "Production API",
-    criticality: "high"
+  "solution_plan": {
+    "title": "User Authentication Implementation",
+    "steps": [
+      "1. Create login component with form validation",
+      "2. Implement JWT authentication service",
+      "3. Add user session management"
+    ],
+    "estimated_time": "3 days",
+    "risk_level": "medium"
+  },
+  "approval_channel": "linear_comment"
+}
+```
+
+# Example Output
+
+```json
+{
+  "approval_decision": {
+    "status": "approved",
+    "approver": "manager_456",
+    "timestamp": "2024-01-15T14:30:00Z",
+    "modifications": [],
+    "reasoning": "Plan looks comprehensive and well-structured"
+  },
+  "audit_trail": {
+    "plan_id": "plan_123",
+    "created_at": "2024-01-15T14:00:00Z",
+    "review_history": [
+      {
+        "action": "submitted_for_approval",
+        "timestamp": "2024-01-15T14:00:00Z",
+        "actor": "system"
+      },
+      {
+        "action": "approved",
+        "timestamp": "2024-01-15T14:30:00Z",
+        "actor": "manager_456",
+        "reasoning": "Plan looks comprehensive and well-structured"
+      }
+    ]
   }
-})
-
-// Returns:
-// {
-//   valid: false,
-//   issues: [
-//     {
-//       type: "missing_rollback",
-//       severity: "high",
-//       description: "No rollback plan provided"
-//     }
-//   ],
-//   riskLevel: "medium",
-//   recommendations: [
-//     "Add rollback procedure to plan",
-//     "Include performance testing"
-//   ]
-// }
+}
 ```
 
-### Submit Approval Decision
-```typescript
-const decision = await submit_approval({
-  approvalId: "APPROVAL-456",
-  decision: "approved",
-  approverId: "john.doe@company.com",
-  comments: "Plan looks good. I've reviewed the rollback procedure and testing strategy.",
-  conditions: [
-    "Must run during maintenance window",
-    "Database backup required before start"
-  ]
-})
-```
+# Approval Channels
 
-## Agent Configuration
+## Linear Comment Approval
+- Parse approval commands from Linear comments (`/approve`, `/reject`, `/modify`)
+- Support conditional approvals (`/approve if tests pass`)
+- Handle modification requests with specific changes
 
-- **Name**: HumanInLoopAgent
-- **Mode**: subagent (specialized for approval workflows)
-- **Permissions**: Read/write for approval management
-- **Temperature**: 0.2 (consistent and predictable)
-- **Top-P**: 0.7
+## OpenCode CLI Approval
+- Interactive approval prompts in terminal
+- Support for detailed review and modification
+- Integration with existing OpenCode workflow
 
-## Approval Workflow States
+## Web UI Approval
+- Visual plan presentation with step-by-step breakdown
+- Interactive approval interface
+- Real-time status updates
 
-### Request States
-- `pending` - Waiting for approver responses
-- `approved` - All required approvals received
-- `rejected` - One or more approvals rejected
-- `expired` - Approval deadline passed
-- `escalated` - Escalated to higher authority
+# Approval Commands
 
-### Approver States
-- `notified` - Approver has been notified
-- `reviewing` - Approver is actively reviewing
-- `responded` - Approver has submitted decision
-- `skipped` - Approver skipped (delegated or unavailable)
+## Linear Comment Commands
+- `/approve` - Approve the current plan
+- `/reject [reason]` - Reject the plan with optional reason
+- `/modify [changes]` - Request specific modifications
+- `/request-more-info` - Ask for additional details
 
-## Approval Types
+## CLI Commands
+- `opencode approve` - Approve current plan
+- `opencode reject [reason]` - Reject with reason
+- `opencode modify [changes]` - Request modifications
 
-### Single Approval
-- One approver required
-- Simple yes/no decision
-- Immediate execution upon approval
+# Audit Trail Requirements
 
-### Multi-Approval
-- Multiple approvers required
-- Configurable approval rules:
-  - All must approve (unanimous)
-  - Majority must approve
-  - Any one can approve
-  - Specific combination required
+- Complete decision history with timestamps
+- Actor identification (user, system, automated)
+- Reasoning and context for decisions
+- Plan version tracking
+- Integration with Linear comment history
 
-### Conditional Approval
-- Approval with conditions
-- Requires meeting specific criteria
-- Can be partial approval
+# Integration Points
 
-## Risk Assessment
+- **LinearCommentParserAgent**: Receives parsed tasks for approval
+- **SolutionPlannerAgent**: Presents solution plans for review
+- **Linear Plugin**: Posts approval requests and captures responses
+- **CommitSegmentationAgent**: Receives approved plans for execution
 
-The agent performs automated risk assessment:
+# Error Handling
 
-### Risk Factors
-- **System Criticality**: Impact on production systems
-- **Change Complexity**: Number and complexity of changes
-- **User Impact**: Effect on end users
-- **Data Sensitivity**: Handling of sensitive data
-- **Rollback Difficulty**: Ease of reverting changes
+- Handle approval timeouts gracefully
+- Support approval escalation workflows
+- Handle conflicting approval decisions
+- Maintain audit integrity during errors
 
-### Risk Levels
-- **Low**: Routine changes with minimal impact
-- **Medium**: Significant changes with manageable risk
-- **High**: Critical changes with potential major impact
-- **Critical**: Changes that could cause system failure
+# Security Considerations
 
-## Integration Points
-
-- **Linear Plugin**: Creates approval issues in Linear
-- **Notification Systems**: Email, Slack, Teams notifications
-- **Project Management**: Jira, Asana, Trello integration
-- **Documentation Systems**: Confluence, Notion integration
-- **Audit Systems**: Compliance and audit trail logging
-
-## Error Handling
-
-The agent provides comprehensive error handling:
-- Invalid approval request formats
-- Missing required approvers
-- Timeout and escalation handling
-- Permission and access errors
-- Network and system failures
-
-## Security Considerations
-
-- **Authentication**: Verify approver identities
-- **Authorization**: Ensure approvers have proper authority
-- **Audit Trail**: Immutable record of all approvals
-- **Data Protection**: Secure handling of sensitive plan data
-- **Compliance**: Support for regulatory requirements
-
-## Performance Optimization
-
-- **Batch Processing**: Process multiple approvals efficiently
-- **Caching**: Cache approver information and preferences
-- **Async Operations**: Non-blocking approval notifications
-- **Rate Limiting**: Respect external API limits
-- **Retry Logic**: Automatic retry for failed notifications
-
-## Monitoring and Analytics
-
-### Approval Metrics
-- Approval cycle time
-- Approval rates by approver
-- Escalation frequency
-- Timeout occurrences
-
-### Quality Metrics
-- Plan quality scores
-- Risk assessment accuracy
-- Approval decision consistency
-- Stakeholder satisfaction
-
-## Dependencies
-
-- `@opencode-ai/plugin` - OpenCode plugin framework
-- `@linear/sdk` - Linear SDK for issue management
-- Notification service integrations
-- Authentication and authorization services
-- Audit logging systems
-
-## Configuration Options
-
-### Approval Policies
-- Default approval requirements
-- Timeout periods
-- Escalation rules
-- Notification preferences
-
-### Risk Thresholds
-- Custom risk assessment criteria
-- Risk level triggers
-- Required approver levels
-- Conditional approval rules
-
-## Testing
-
-The agent includes comprehensive test coverage:
-- Unit tests for approval logic
-- Integration tests with Linear API
-- Workflow simulation tests
-- Security and permission tests
-- Performance and load tests
-
+- Validate approver permissions
+- Prevent approval spoofing
+- Secure audit trail storage
+- Rate limiting for approval requests

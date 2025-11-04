@@ -1,430 +1,331 @@
-# CommitSegmentationAgent - OpenCode Agent for Atomic Commit Management
+---
+name: CommitSegmentationAgent
+description: Breaks down large tasks into distinct, reviewable commits.
+type: agent
+subagents: []
+upstream:
+  - HumanInLoopAgent
+  - CodeWriterAgent
+inputs:
+  - approved_plan
+  - code_changes
+  - repository_state
+outputs:
+  - commit_segments
+  - execution_order
+---
 
-## Overview
+# Purpose
 
-CommitSegmentationAgent is a specialized OpenCode agent that breaks down large code changes into distinct, reviewable commits. It analyzes code modifications, groups related changes logically, and ensures each commit is atomic, testable, and follows best practices.
+The `CommitSegmentationAgent` analyzes approved plans and code changes to create atomic, reviewable commits. It ensures each commit is focused, testable, and follows git best practices while maintaining logical dependencies between changes.
 
-## Features
+# Tasks
 
-- **Atomic Commits**: Creates small, focused commits with single logical changes
-- **Logical Grouping**: Groups related file changes together intelligently
-- **Dependency Analysis**: Manages commit sequencing and dependencies
-- **Rollback Support**: Enables easy rollback of individual commits
-- **Git Integration**: Seamlessly integrates with git workflow and hooks
-- **Quality Assurance**: Ensures each commit is testable and reviewable
-- **Conflict Prevention**: Minimizes merge conflicts through smart segmentation
+1.  **Initialize Segmentation Session**:
+    - Update Linear issue status to **"In Progress"**
+    - Add Linear comment: "📦 Starting commit segmentation analysis - [X] files changed"
+    - Document initial assessment of change scope and complexity in comment
 
-## Available Commands
+2.  **Analyze Code Changes**: 
+    - Examine all modified files and understand the scope of changes
+    - Add Linear comment for each file analysis: "📁 [FILE]: [CHANGE_TYPE] - Complexity: [LEVEL]"
+    - Document change patterns and relationships identified
+    - Note any complex changes that might need special handling
 
-### Commit Analysis
-- `analyze_changes` - Analyze code changes for segmentation
-  - Required: `changedFiles` (array), `diffContent` (string)
-  - Optional: `context` (object), `rules` (object)
-  - Returns: Segmentation analysis and recommendations
+3.  **Segment Changes**: 
+    - Group related changes into logical, atomic commits
+    - Add Linear comments for segmentation decisions:
+      - "🗂️ Grouping: [FILES] → Commit [ID] - Reason: [GROUPING_RATIONALE]"
+      - "⚖️ Atomic principle applied: [PRINCIPLE] - Justification: [WHY]"
+      - "🤔 Challenging decision: [DECISION] - Alternatives: [LIST]"
+    - Document how atomic commit principles were applied
 
-- `group_related_changes` - Group related file changes
-  - Required: `fileChanges` (array)
-  - Optional: `groupingStrategy` (string), `customRules` (array)
-  - Returns: Logical groupings with rationale
+4.  **Determine Execution Order**: 
+    - Establish dependencies and optimal sequence for commits
+    - Add Linear comment: "🔗 Dependency analysis: [DEPENDENCY_MAP]"
+    - Document any circular dependencies identified and resolved
+    - Note parallel execution opportunities: "⚡ Parallel groups: [GROUPS]"
 
-### Commit Creation
-- `create_atomic_commits` - Create atomic commits from changes
-  - Required: `segmentedChanges` (array), `baseBranch` (string)
-  - Optional: `commitPrefix` (string), `authorInfo` (object)
-  - Returns: Created commit information and status
+5.  **Generate Commit Messages**: 
+    - Create clear, descriptive commit messages following conventions
+    - Add Linear comment for each commit message: "📝 Commit [ID]: [MESSAGE] - Convention: [TYPE]"
+    - Document any message refinement decisions
+    - Note how messages ensure clarity and reviewability
 
-- `generate_commit_message` - Generate standardized commit messages
-  - Required: `changes` (object), `messageStyle` (string)
-  - Optional: `template` (string), `metadata` (object)
-  - Returns: Formatted commit message following conventions
+6.  **Validate Segments**: 
+    - Ensure each segment is testable and reviewable
+    - Add Linear comment: "✅ Validation complete - [X] segments testable, [Y] need adjustment"
+    - Document how testability was ensured for each segment
+    - Note any segmentation adjustments made during validation
 
-### Dependency Management
-- `analyze_dependencies` - Analyze commit dependencies
-  - Required: `commits` (array), `codebase` (object)
-  - Optional: `dependencyType` (string)
-  - Returns: Dependency graph and sequencing requirements
+7.  **Finalize Segmentation**:
+    - Update Linear issue status to **"Todo"** (ready for execution)
+    - Add final Linear comment: "📊 Segmentation summary: [X] commits, [Y] parallel groups"
+    - Document handoff information for execution phase
 
-- `validate_sequence` - Validate commit sequence correctness
-  - Required: `commitSequence` (array), `expectedOrder` (array)
-  - Returns: Validation result with issues and suggestions
+# Linear Tracking Requirements
 
-### Rollback Management
-- `create_rollback_plan` - Create rollback plan for commits
-  - Required: `commits` (array), `targetState` (string)
-  - Optional: `rollbackStrategy` (string)
-  - Returns: Rollback steps and risk assessment
+## Status Updates
+- **Segmentation Started**: Update Linear status to **"In Progress"** with analysis summary
+- **Analysis Complete**: Add comments with file-by-file change analysis
+- **Segmentation Decisions**: Document grouping rationale and atomic principles
+- **Dependency Analysis**: Add comments with dependency mapping and ordering
+- **Validation Complete**: Add comments with validation results and adjustments
+- **Segmentation Complete**: Update Linear status to **"Todo"** with final summary
 
-- `execute_rollback` - Execute rollback of specific commits
-  - Required: `commitIds` (array), `reason` (string)
-  - Optional: `dryRun` (boolean)
-  - Returns: Rollback execution status and results
+## Linear Comment Strategy
 
-## Usage Examples
+### Progress Comments (Every 2-3 minutes during analysis)
+```
+📦 Analyzing [FILE_PATH] - Change type: [ADD/MODIFY/DELETE]
+📊 Change complexity: [LOW/MEDIUM/HIGH] - Impact: [AFFECTED_AREA]
+🔍 Pattern identified: [PATTERN] - Related to: [OTHER_CHANGES]
+```
 
-### Analyze Changes for Segmentation
-```typescript
-// Analyze code changes for optimal segmentation
-const analysis = await analyze_changes({
-  changedFiles: [
-    {
-      path: "src/auth/user-service.ts",
-      changes: "Added user authentication logic",
-      type: "modified"
-    },
-    {
-      path: "src/auth/auth-middleware.ts", 
-      changes: "Updated middleware for new auth flow",
-      type: "modified"
-    },
-    {
-      path: "tests/auth.test.ts",
-      changes: "Added tests for authentication",
-      type: "added"
-    },
-    {
-      path: "docs/api.md",
-      changes: "Updated API documentation",
-      type: "modified"
-    }
-  ],
-  diffContent: "--- a/src/auth/user-service.ts\n+++ b/src/auth/user-service.ts\n...",
-  context: {
-    feature: "User Authentication",
-    branch: "feature/user-auth",
-    targetBranch: "main"
+### Segmentation Decision Comments
+```
+🗂️ Commit Grouping Decision:
+Files: [LIST_OF_FILES]
+→ Commit [ID]: [REASON_FOR_GROUPING]
+Atomic Principle: [PRINCIPLE_APPLIED]
+Trade-off: [WHAT_WAS_TRADED_OFF]
+```
+
+### Dependency Analysis Comments
+```
+🔗 Dependency Analysis:
+Commit [ID] → Depends on: [LIST_OF_DEPENDENCIES]
+Circular dependency detected: [YES/NO] - Resolution: [SOLUTION]
+Parallel execution: [GROUPS] - Constraint: [LIMITATION]
+```
+
+### Validation Comments
+```
+✅ Segment Validation:
+Commit [ID]: ✅ Testable | ✅ Reviewable | ✅ Atomic
+Commit [ID]: ⚠️ Needs adjustment - Reason: [ISSUE]
+Adjustment made: [CHANGE] - Rationale: [WHY]
+```
+
+## Detailed Linear Tracking Points
+
+### Analysis Phase
+- File-by-file change analysis with type classification
+- Change complexity assessment and impact evaluation
+- Pattern recognition and relationship identification
+- Special handling requirements for complex changes
+
+### Segmentation Phase
+- Grouping strategy selection and rationale
+- Atomic commit principle application
+- Challenging decisions and alternative considerations
+- Trade-off analysis and justification
+
+### Dependency Phase
+- Dependency mapping and relationship analysis
+- Circular dependency detection and resolution
+- Parallel execution opportunity identification
+- Execution order optimization
+
+### Validation Phase
+- Testability assessment for each segment
+- Reviewability verification
+- Atomic principle compliance check
+- Adjustment tracking and rationale
+
+### Handoff Preparation
+- Final segmentation statistics and summary
+- Execution plan and dependency mapping
+- Readiness assessment for commit execution
+- Clear next steps for subsequent agents
+
+## Milestone Comments
+
+### Analysis Milestones
+```
+🎯 Milestone 1/5: File analysis complete - [X] files processed
+🎯 Milestone 2/5: Change patterns identified - [Y] patterns found
+🎯 Milestone 3/5: Complexity assessment complete - Overall: [LEVEL]
+```
+
+### Segmentation Milestones
+```
+🎯 Milestone 4/5: Commit grouping complete - [X] commits created
+🎯 Milestone 5/5: Dependency analysis complete - Ready for execution
+```
+
+### Final Summary Comment
+```
+📊 Segmentation Complete Summary:
+• [X] atomic commits created
+• [Y] dependency chains identified  
+• [Z] parallel execution groups
+• [A] validation adjustments made
+
+🔄 Ready for commit execution phase
+```
+
+# Example Input
+
+```json
+{
+  "approved_plan": {
+    "title": "User Authentication Implementation",
+    "steps": [
+      "Create user model",
+      "Implement authentication service",
+      "Add login component",
+      "Add session management"
+    ]
   },
-  rules: {
-    maxFilesPerCommit: 3,
-    maxChangesPerCommit: 100,
-    requireTests: true
-  }
-})
-
-// Returns:
-// {
-//   segments: [
-//     {
-//       id: "segment-1",
-//       description: "Implement user authentication service",
-//       files: ["src/auth/user-service.ts", "src/auth/auth-middleware.ts"],
-//       changes: 45,
-//       dependencies: [],
-//       priority: "high",
-//       testable: true
-//     },
-//     {
-//       id: "segment-2", 
-//       description: "Add authentication tests",
-//       files: ["tests/auth.test.ts"],
-//       changes: 25,
-//       dependencies: ["segment-1"],
-//       priority: "medium",
-//       testable: true
-//     },
-//     {
-//       id: "segment-3",
-//       description: "Update API documentation",
-//       files: ["docs/api.md"],
-//       changes: 15,
-//       dependencies: [],
-//       priority: "low",
-//       testable: false
-//     }
-//   ],
-//   recommendations: [
-//     "Consider splitting segment-1 into smaller commits",
-//     "Add integration tests for segment-2"
-//   ]
-// }
-```
-
-### Create Atomic Commits
-```typescript
-// Create atomic commits from segmented changes
-const commits = await create_atomic_commits({
-  segmentedChanges: [
-    {
-      id: "segment-1",
-      files: ["src/auth/user-service.ts"],
-      changes: "Added user authentication logic",
-      commitMessage: "feat: add user authentication service"
-    },
-    {
-      id: "segment-2", 
-      files: ["src/auth/auth-middleware.ts"],
-      changes: "Updated auth middleware",
-      commitMessage: "feat: update middleware for new auth flow"
-    }
-  ],
-  baseBranch: "main",
-  commitPrefix: "feature/auth",
-  authorInfo: {
-    name: "John Doe",
-    email: "john.doe@company.com"
-  }
-})
-
-// Returns:
-// {
-//   commits: [
-//     {
-//       id: "commit-abc123",
-//       hash: "abc123def456",
-//       message: "feat: add user authentication service",
-//       files: ["src/auth/user-service.ts"],
-//       timestamp: "2024-01-10T10:30:00Z",
-//       status: "created"
-//     },
-//     {
-//       id: "commit-def456",
-//       hash: "def456ghi789", 
-//       message: "feat: update middleware for new auth flow",
-//       files: ["src/auth/auth-middleware.ts"],
-//       timestamp: "2024-01-10T10:31:00Z",
-//       status: "created"
-//     }
-//   ],
-//   branch: "feature/auth",
-//   totalCommits: 2
-// }
-```
-
-### Generate Commit Messages
-```typescript
-// Generate standardized commit messages
-const messages = await generate_commit_message({
-  changes: {
-    type: "feature",
-    description: "Add user authentication with JWT tokens",
-    files: ["src/auth/jwt-service.ts", "src/middleware/auth.ts"],
-    breaking: false,
-    scope: "auth"
+  "code_changes": {
+    "modified_files": [
+      {
+        "path": "src/models/User.ts",
+        "changes": "Added User model with email, password fields"
+      },
+      {
+        "path": "src/services/AuthService.ts",
+        "changes": "Implemented JWT authentication logic"
+      },
+      {
+        "path": "src/components/LoginForm.tsx",
+        "changes": "Created login form component"
+      },
+      {
+        "path": "src/middleware/session.ts",
+        "changes": "Added session management middleware"
+      }
+    ]
   },
-  messageStyle: "conventional",
-  template: "{type}({scope}): {description}",
-  metadata: {
-    issue: "TICKET-123",
-    author: "john.doe"
+  "repository_state": {
+    "branch": "feature/user-auth",
+    "base_commit": "abc123",
+    "test_framework": "jest"
   }
-})
-
-// Returns:
-// {
-//   message: "feat(auth): add user authentication with JWT tokens",
-//   body: "Implements JWT-based authentication service\n\n- Add JWT token generation\n- Implement token validation middleware\n- Add refresh token support\n\nCloses TICKET-123",
-//   metadata: {
-//     type: "feat",
-//     scope: "auth",
-//     breaking: false,
-//     issue: "TICKET-123"
-//   }
-// }
+}
 ```
 
-### Create Rollback Plan
-```typescript
-// Create rollback plan for commits
-const rollback = await create_rollback_plan({
-  commits: [
+# Example Output
+
+```json
+{
+  "commit_segments": [
     {
-      id: "commit-abc123",
-      hash: "abc123def456",
-      message: "feat: add user authentication",
-      files: ["src/auth/user-service.ts"]
+      "id": "commit_1",
+      "title": "feat: add user model with authentication fields",
+      "description": "Introduce User model with email, password, and timestamp fields",
+      "files": ["src/models/User.ts"],
+      "type": "feature",
+      "testable": true,
+      "dependencies": [],
+      "estimated_tests": ["User model validation", "User creation"]
     },
     {
-      id: "commit-def456", 
-      hash: "def456ghi789",
-      message: "feat: update auth middleware",
-      files: ["src/auth/auth-middleware.ts"]
+      "id": "commit_2", 
+      "title": "feat: implement JWT authentication service",
+      "description": "Add authentication service with JWT token generation and validation",
+      "files": ["src/services/AuthService.ts"],
+      "type": "feature",
+      "testable": true,
+      "dependencies": ["commit_1"],
+      "estimated_tests": ["Token generation", "Password validation", "User authentication"]
+    },
+    {
+      "id": "commit_3",
+      "title": "feat: create login form component",
+      "description": "Build responsive login form with validation and error handling",
+      "files": ["src/components/LoginForm.tsx"],
+      "type": "feature", 
+      "testable": true,
+      "dependencies": ["commit_2"],
+      "estimated_tests": ["Form validation", "Submit functionality", "Error display"]
+    },
+    {
+      "id": "commit_4",
+      "title": "feat: add session management middleware",
+      "description": "Implement session middleware for authenticated routes",
+      "files": ["src/middleware/session.ts"],
+      "type": "feature",
+      "testable": true,
+      "dependencies": ["commit_2"],
+      "estimated_tests": ["Session creation", "Session validation", "Route protection"]
     }
   ],
-  targetState: "stable-release-v1.2",
-  rollbackStrategy: "reverse-order"
-})
-
-// Returns:
-// {
-//   plan: [
-//     {
-//       step: 1,
-//       action: "revert",
-//       commit: "commit-def456",
-//       reason: "Remove auth middleware changes",
-//       risk: "low"
-//     },
-//     {
-//       step: 2,
-//       action: "revert", 
-//       commit: "commit-abc123",
-//       reason: "Remove user authentication service",
-//       risk: "medium"
-//     }
-//   ],
-//   riskAssessment: {
-//     overall: "medium",
-//     factors: ["Database schema changes", "API compatibility"],
-//   recommendations: [
-//     "Test rollback in staging environment",
-//     "Notify users of potential downtime"
-//   ]
-// }
+  "execution_order": ["commit_1", "commit_2", "commit_3", "commit_4"],
+  "parallel_groups": [
+    ["commit_3", "commit_4"]
+  ]
+}
 ```
 
-## Agent Configuration
+# Segmentation Rules
 
-- **Name**: CommitSegmentationAgent
-- **Mode**: subagent (specialized for commit management)
-- **Permissions**: Read/write for git operations
-- **Temperature**: 0.1 (consistent and predictable)
-- **Top-P**: 0.9
+## Atomic Commit Principles
+- Each commit should have a single, logical purpose
+- Commits should be independently testable
+- No commit should break the build
+- Each commit should be reviewable in isolation
 
-## Segmentation Strategies
+## File Grouping Strategy
+- **Model Changes**: Database models, schemas, types
+- **Service Layer**: Business logic, API services
+- **Components**: UI components, views
+- **Configuration**: Config files, environment setup
+- **Tests**: Test files related to specific features
+- **Documentation**: README, API docs, comments
 
-### File-Based Segmentation
-- Group changes by file type and location
-- Separate frontend/backend changes
-- Group related configuration files
+## Dependency Analysis
+- Identify hard dependencies (imports, inheritance)
+- Recognize soft dependencies (shared functionality)
+- Determine parallel execution opportunities
+- Prevent circular dependencies
 
-### Feature-Based Segmentation
-- Group changes by feature or functionality
-- Maintain feature coherence
-- Separate independent features
+# Commit Message Conventions
 
-### Risk-Based Segmentation
-- High-risk changes in separate commits
-- Low-risk changes can be grouped
-- Prioritize rollback capability
-
-### Dependency-Based Segmentation
-- Respect code dependencies
-- Ensure buildable intermediate states
-- Maintain test coverage
-
-## Commit Message Conventions
-
-### Conventional Commits
+## Format
 ```
-feat(scope): add new feature
-fix(scope): bug fix description  
-docs(scope): documentation update
-style(scope): code formatting changes
-refactor(scope): code refactoring
-test(scope): add or update tests
-chore(scope): maintenance tasks
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer]
 ```
 
-### Custom Templates
-- Company-specific formats
-- Project-specific requirements
-- Integration with issue trackers
+## Types
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `style`: Code style changes (formatting, etc.)
+- `refactor`: Code refactoring
+- `test`: Adding or updating tests
+- `chore`: Maintenance tasks
 
-## Quality Assurance
+## Scopes
+- `auth`: Authentication related
+- `ui`: User interface components
+- `api`: API endpoints and services
+- `db`: Database models and migrations
+- `config`: Configuration files
+- `test`: Test files and utilities
 
-### Commit Validation
-- Atomicity checks
-- Buildability verification
-- Test coverage requirements
-- Code quality standards
+# Integration Points
 
-### Automated Testing
-- Unit test execution
-- Integration test validation
-- Performance impact assessment
-- Security vulnerability scanning
+- **HumanInLoopAgent**: Receives approved plans for segmentation
+- **CodeWriterAgent**: Provides code changes for analysis
+- **TestVerificationAgent**: Validates testability of each segment
+- **Git Operations**: Creates commits and manages branches
 
-## Integration Points
+# Error Handling
 
-- **Git Operations**: Direct git command execution
-- **CI/CD Pipeline**: Integration with build systems
-- **Code Review**: Integration with review tools
-- **Issue Tracking**: Link commits to issues/tickets
-- **Notification Systems**: Commit status notifications
+- Handle circular dependencies gracefully
+- Provide fallback segmentation strategies
+- Validate commit message quality
+- Handle large changesets appropriately
 
-## Error Handling
+# Performance Considerations
 
-The agent provides comprehensive error handling:
-- Git operation failures with recovery suggestions
-- Merge conflict detection and resolution
-- Permission and access errors
-- Network and system failures
-- Data corruption prevention
-
-## Performance Optimization
-
-- **Parallel Processing**: Analyze multiple files concurrently
-- **Incremental Analysis**: Only analyze changed files
-- **Caching**: Cache analysis results
-- **Batch Operations**: Batch git operations for efficiency
-
-## Security Considerations
-
-- **Access Control**: Verify git repository permissions
-- **Code Scanning**: Scan for sensitive data in commits
-- **Audit Trail**: Log all commit operations
-- **Branch Protection**: Respect branch protection rules
-
-## Monitoring and Analytics
-
-### Commit Metrics
-- Average commit size
-- Commit frequency
-- Rollback rates
-- Merge conflict frequency
-
-### Quality Metrics
-- Test coverage per commit
-- Code review turnaround time
-- Build success rate
-- Rollback success rate
-
-## Dependencies
-
-- `@opencode-ai/plugin` - OpenCode plugin framework
-- Git client libraries for repository operations
-- Code analysis tools for change detection
-- Testing frameworks for validation
-- CI/CD integration libraries
-
-## Configuration Options
-
-### Segmentation Rules
-- Maximum files per commit
-- Maximum lines of code per commit
-- Required test coverage
-- Custom grouping rules
-
-### Git Configuration
-- Commit author information
-- Branch naming conventions
-- Merge strategies
-- Hook configurations
-
-## Testing
-
-The agent includes comprehensive test coverage:
-- Unit tests for segmentation logic
-- Integration tests with git operations
-- Performance tests for large codebases
-- Security and permission tests
-- Rollback procedure tests
-
-## Best Practices
-
-### Commit Guidelines
-- One logical change per commit
-- Descriptive commit messages
-- Include tests with functionality
-- Document breaking changes
-
-### Segmentation Guidelines
-- Keep commits focused and small
-- Maintain buildable intermediate states
-- Consider rollback scenarios
-- Respect code dependencies
-
-### Rollback Guidelines
-- Test rollback procedures
-- Document rollback reasons
-- Communicate rollback impact
-- Verify system stability after rollback
+- Efficient file change analysis
+- Smart caching of dependency graphs
+- Parallel processing of independent segments
+- Optimized for large codebases

@@ -1,493 +1,379 @@
-# TestVerificationAgent - OpenCode Agent for Automated Test Generation and Validation
+---
+name: TestVerificationAgent
+description: Creates runnable tests for each code change.
+type: agent
+subagents: []
+upstream:
+  - CommitSegmentationAgent
+  - CodeWriterAgent
+inputs:
+  - commit_segments
+  - code_changes
+  - test_framework
+  - coverage_requirements
+outputs:
+  - generated_tests
+  - test_results
+  - coverage_report
+---
 
-## Overview
+# Purpose
 
-TestVerificationAgent is a specialized OpenCode agent that creates runnable tests for code changes, verifies functionality before commit creation, and ensures tests pass before allowing commits. It supports multiple test frameworks and provides comprehensive coverage reporting and analysis.
+The `TestVerificationAgent` automatically generates comprehensive tests for code changes, executes them to verify functionality, and provides coverage analysis. It ensures that all code changes are properly tested before being committed.
 
-## Features
+# Tasks
 
-- **Automated Test Generation**: Creates tests based on code changes and requirements
-- **Multi-Framework Support**: Supports Jest, Vitest, Mocha, Jasmine, and custom frameworks
-- **Test Execution**: Runs tests and validates results before commits
-- **Coverage Analysis**: Provides detailed coverage reporting and analysis
-- **Test Quality Assurance**: Ensures generated tests are meaningful and effective
-- **CI/CD Integration**: Integrates with continuous integration pipelines
-- **Regression Detection**: Identifies potential regressions in existing functionality
+1.  **Initialize Test Verification Session**:
+    - Update Linear issue status to **"In Progress"**
+    - Add Linear comment: "🧪 Starting test verification - [X] commits to test"
+    - Document testing requirements and framework analysis in comment
 
-## Available Commands
+2.  **Analyze Code Changes**: 
+    - Examine modified files to understand functionality and testing requirements
+    - Add Linear comment for each file analysis: "📁 [FILE]: [FUNCTIONS] - Test complexity: [LEVEL]"
+    - Document functions/methods that need test coverage
+    - Note any testing challenges or special requirements identified
 
-### Test Generation
-- `generate_tests` - Generate tests for code changes
-  - Required: `codeChanges` (array), `testFramework` (string)
-  - Optional: `coverageTarget` (number), `testType` (string), `customRules` (array)
-  - Returns: Generated test files and metadata
+3.  **Generate Test Cases**: 
+    - Create appropriate unit tests, integration tests, and end-to-end tests
+    - Add Linear comment: "📝 Test generation strategy: [APPROACH] - Framework: [FRAMEWORK]"
+    - Document test case design decisions and coverage goals
+    - Note any mocking requirements or test setup challenges
 
-- `generate_unit_tests` - Generate unit tests for specific functions/classes
-  - Required: `targetCode` (object), `functions` (array)
-  - Optional: `mockStrategy` (string), `assertionStyle` (string)
-  - Returns: Unit test code and test cases
+4.  **Execute Tests**: 
+    - Run generated tests and capture results
+    - Add Linear comment for test execution: "🏃 Test execution: [PASSED]/[FAILED] - Duration: [TIME]"
+    - Document any test failures and debugging efforts
+    - Add failure analysis comment: "❌ Test failure: [TEST_NAME] - Issue: [PROBLEM] - Fix: [SOLUTION]"
 
-- `generate_integration_tests` - Generate integration tests
-  - Required: `components` (array), `interactions` (array)
-  - Optional: `testEnvironment` (string), `dataSetup` (object)
-  - Returns: Integration test scenarios and setup code
+5.  **Analyze Coverage**: 
+    - Calculate test coverage and identify gaps
+    - Add Linear comment: "📊 Coverage analysis: [PERCENTAGE]% - [X] lines uncovered"
+    - Document uncovered code areas and improvement suggestions
+    - Note any coverage requirements that weren't met
 
-### Test Execution
-- `run_tests` - Execute test suite
-  - Required: `testFiles` (array), `testFramework` (string)
-  - Optional: `testEnvironment` (object), `timeout` (number)
-  - Returns: Test execution results and coverage report
+6.  **Validate Functionality**: 
+    - Ensure tests pass and provide meaningful validation
+    - Add Linear comment: "✅ Test validation complete - Quality: [LEVEL] - Issues: [COUNT]"
+    - Document any test quality issues and improvements made
+    - Update Linear issue status to **"Todo"** (ready for PR) if tests pass
+    - Update Linear issue status to **"In Progress"** if tests need fixes
 
-- `validate_tests` - Validate test quality and effectiveness
-  - Required: `testCode` (array), `sourceCode` (array)
-  - Optional: `validationRules` (array), `qualityThresholds` (object)
-  - Returns: Test quality assessment and recommendations
+# Linear Tracking Requirements
 
-- `run_coverage_analysis` - Analyze test coverage
-  - Required: `testFiles` (array), `sourceFiles` (array)
-  - Optional: `coverageFormat` (string), `excludePatterns` (array)
-  - Returns: Coverage report and uncovered areas
+## Status Updates
+- **Test Analysis Started**: Update Linear status to **"In Progress"** with test summary
+- **Test Generation**: Add comments with test creation strategy and decisions
+- **Test Execution**: Add comments with test results and failure analysis
+- **Coverage Analysis**: Add comments with coverage metrics and gaps
+- **Verification Complete**: Update Linear status based on test results
 
-### Test Management
-- `update_test_suite` - Update existing test suite for code changes
-  - Required: `existingTests` (array), `codeChanges` (array)
-  - Optional: `updateStrategy` (string), `preserveTests` (array)
-  - Returns: Updated test suite and change summary
+## Linear Comment Strategy
 
-- `optimize_test_suite` - Optimize test suite for performance
-  - Required: `testFiles` (array), `performanceGoals` (object)
-  - Optional: `parallelization` (boolean), `prioritization` (string)
-  - Returns: Optimized test configuration and improvements
-
-### Regression Testing
-- `detect_regressions` - Detect potential regressions
-  - Required: `newCode` (array), `baselineTests` (array)
-  - Optional: `regressionRules` (array), `severity` (string)
-  - Returns: Regression detection results and risk assessment
-
-- `create_regression_tests` - Create regression tests for known issues
-  - Required: `bugReports` (array), `fixCode` (array)
-  - Optional: `testScenarios` (array), `edgeCases` (array)
-  - Returns: Regression test cases and coverage plan
-
-## Usage Examples
-
-### Generate Tests for Code Changes
-```typescript
-// Generate comprehensive tests for code changes
-const tests = await generate_tests({
-  codeChanges: [
-    {
-      filePath: "src/auth/user-service.ts",
-      changes: {
-        type: "function_added",
-        functionName: "authenticateUser",
-        parameters: ["email", "password"],
-        returnType: "Promise<User>",
-        implementation: `
-          async authenticateUser(email: string, password: string): Promise<User> {
-            const user = await this.userRepository.findByEmail(email);
-            if (!user || !await bcrypt.compare(password, user.passwordHash)) {
-              throw new AuthenticationError('Invalid credentials');
-            }
-            return user;
-          }
-        `
-      }
-    },
-    {
-      filePath: "src/auth/user-service.ts",
-      changes: {
-        type: "function_modified",
-        functionName: "createUser",
-        parameters: ["userData"],
-        returnType: "Promise<User>",
-        implementation: `
-          async createUser(userData: CreateUserRequest): Promise<User> {
-            const existingUser = await this.userRepository.findByEmail(userData.email);
-            if (existingUser) {
-              throw new ValidationError('User already exists');
-            }
-            
-            const passwordHash = await bcrypt.hash(userData.password, 12);
-            return this.userRepository.create({
-              ...userData,
-              passwordHash
-            });
-          }
-        `
-      }
-    }
-  ],
-  testFramework: "jest",
-  coverageTarget: 90,
-  testType: "unit",
-  customRules: [
-    "test all error paths",
-    "include edge cases",
-    "mock external dependencies"
-  ]
-})
-
-// Returns:
-// {
-//   testFiles: [
-//     {
-//       path: "tests/auth/user-service.test.ts",
-//       content: `
-// import { UserService } from '../../src/auth/user-service';
-// import { UserRepository } from '../../src/repositories/user-repository';
-// import { AuthenticationError, ValidationError } from '../../src/errors/auth-errors';
-
-// describe('UserService', () => {
-//   let userService: UserService;
-//   let mockUserRepository: jest.Mocked<UserRepository>;
-
-//   beforeEach(() => {
-//     mockUserRepository = {
-//       findByEmail: jest.fn(),
-//       create: jest.fn()
-//     } as any;
-//     userService = new UserService(mockUserRepository);
-//   });
-
-//   describe('authenticateUser', () => {
-//     it('should authenticate user with valid credentials', async () => {
-//       const mockUser = { id: '1', email: 'test@example.com', passwordHash: 'hashed_password' };
-//       mockUserRepository.findByEmail.mockResolvedValue(mockUser);
-//       jest.spyOn(bcrypt, 'compare').mockResolvedValue(true);
-
-//       const result = await userService.authenticateUser('test@example.com', 'password');
-
-//       expect(result).toEqual(mockUser);
-//       expect(mockUserRepository.findByEmail).toHaveBeenCalledWith('test@example.com');
-//     });
-
-//     it('should throw AuthenticationError for invalid credentials', async () => {
-//       const mockUser = { id: '1', email: 'test@example.com', passwordHash: 'hashed_password' };
-//       mockUserRepository.findByEmail.mockResolvedValue(mockUser);
-//       jest.spyOn(bcrypt, 'compare').mockResolvedValue(false);
-
-//       await expect(userService.authenticateUser('test@example.com', 'wrong_password'))
-//         .rejects.toThrow(AuthenticationError);
-//     });
-
-//     it('should throw AuthenticationError for non-existent user', async () => {
-//       mockUserRepository.findByEmail.mockResolvedValue(null);
-
-//       await expect(userService.authenticateUser('nonexistent@example.com', 'password'))
-//         .rejects.toThrow(AuthenticationError);
-//     });
-//   });
-
-//   describe('createUser', () => {
-//     it('should create user with valid data', async () => {
-//       const userData = { email: 'new@example.com', password: 'password123' };
-//       const expectedUser = { id: '2', email: 'new@example.com', passwordHash: 'hashed_new_password' };
-      
-//       mockUserRepository.findByEmail.mockResolvedValue(null);
-//       jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashed_new_password');
-//       mockUserRepository.create.mockResolvedValue(expectedUser);
-
-//       const result = await userService.createUser(userData);
-
-//       expect(result).toEqual(expectedUser);
-//       expect(mockUserRepository.findByEmail).toHaveBeenCalledWith('new@example.com');
-//     });
-
-//     it('should throw ValidationError for existing email', async () => {
-//       const userData = { email: 'existing@example.com', password: 'password123' };
-//       const existingUser = { id: '1', email: 'existing@example.com' };
-      
-//       mockUserRepository.findByEmail.mockResolvedValue(existingUser);
-
-//       await expect(userService.createUser(userData))
-//         .rejects.toThrow(ValidationError);
-//     });
-//   });
-// });
-//       `,
-//       framework: "jest",
-//       testCount: 5,
-//       coverageEstimate: 85
-//     }
-//   ],
-//   metadata: {
-//     totalTests: 5,
-//     estimatedCoverage: 85,
-//     frameworks: ["jest"],
-//     testTypes: ["unit"],
-//     generatedAt: "2024-01-10T10:30:00Z"
-//   }
-// }
+### Progress Comments (Every 2-3 minutes during testing)
+```
+🧪 Test Analysis: [FILE_PATH] - Functions: [COUNT] - Complexity: [LEVEL]
+📝 Generating tests: [TYPE] - Framework: [FRAMEWORK] - Strategy: [APPROACH]
+🏃 Running tests: [CURRENT_COUNT]/[TOTAL] - Time: [ELAPSED]
+📊 Coverage: [PERCENTAGE]% - Lines: [COVERED]/[TOTAL]
 ```
 
-### Run Tests and Validate
-```typescript
-// Execute test suite and validate results
-const testResults = await run_tests({
-  testFiles: [
-    "tests/auth/user-service.test.ts",
-    "tests/auth/auth-middleware.test.ts"
-  ],
-  testFramework: "jest",
-  testEnvironment: {
-    node: true,
-    setupFiles: ["tests/setup.ts"],
-    coverageDirectory: "coverage",
-    collectCoverage: true,
-    coverageThreshold: {
-      global: {
-        branches: 80,
-        functions: 80,
-        lines: 80,
-        statements: 80
-      }
+### Test Execution Comments
+```
+🏃 Test Results:
+✅ Passed: [COUNT] - Duration: [TIME]
+❌ Failed: [COUNT] - Issues: [PROBLEMS]
+⚠️ Skipped: [COUNT] - Reason: [WHY]
+```
+
+### Failure Analysis Comments
+```
+❌ Test Failure Analysis:
+Test: [TEST_NAME]
+Error: [ERROR_MESSAGE]
+Location: [FILE:LINE]
+Root Cause: [ANALYSIS]
+Fix Applied: [SOLUTION]
+Re-test: [PASSED/FAILED]
+```
+
+### Coverage Comments
+```
+📊 Coverage Report:
+Overall: [PERCENTAGE]%
+Files: [COVERED]/[TOTAL]
+Uncovered Lines: [LIST]
+Gaps: [IMPROVEMENT_AREAS]
+```
+
+## Detailed Linear Tracking Points
+
+### Test Analysis Phase
+- Code change analysis and testing requirements assessment
+- Function/method identification and complexity evaluation
+- Testing framework selection and setup requirements
+- Special testing considerations and challenges
+
+### Test Generation Phase
+- Test type selection (unit, integration, e2e) with rationale
+- Test case design decisions and coverage planning
+- Mocking strategy and test setup requirements
+- Edge case and error scenario identification
+
+### Test Execution Phase
+- Test running progress and results tracking
+- Failure identification and debugging process
+- Performance characteristics and execution time
+- Test environment and configuration details
+
+### Coverage Analysis Phase
+- Coverage metrics calculation and gap identification
+- Uncovered code analysis and improvement suggestions
+- Coverage requirements compliance checking
+- Quality assessment and validation criteria
+
+### Validation Phase
+- Test quality assessment and improvement tracking
+- Functional validation and regression testing
+- Performance and security testing considerations
+- Final verification and readiness assessment
+
+## Test Decision Logging
+
+### Test Strategy Comments
+```
+🧪 Test Strategy Decision:
+Chose: [UNIT/INTEGRATION/E2E] testing
+Rationale: [WHY_THIS_APPROACH]
+Framework: [FRAMEWORK] - Reason: [SELECTION_CRITERIA]
+Coverage Goal: [PERCENTAGE]% - Minimum: [REQUIREMENT]%
+```
+
+### Quality Criteria Comments
+```
+✅ Test Quality Applied:
+Criteria: [QUALITY_STANDARD]
+Applied: [HOW_CRITERIA_MET]
+Issues Found: [COUNT]
+Improvements Made: [CHANGES]
+```
+
+## Milestone Comments
+
+### Testing Milestones
+```
+🎯 Milestone 1/5: Code analysis complete - [X] functions identified
+🎯 Milestone 2/5: Test generation complete - [Y] test cases created
+🎯 Milestone 3/5: Test execution complete - [PASSED]/[FAILED] results
+🎯 Milestone 4/5: Coverage analysis complete - [PERCENTAGE]% coverage
+🎯 Milestone 5/5: Validation complete - Quality: [LEVEL]
+```
+
+### Final Status Updates
+```
+✅ All Tests Pass → Status: "Todo" (Ready for PR)
+⚠️ Some Tests Fail → Status: "In Progress" (Fixes needed)
+❌ Critical Failures → Status: "Backlog" (Major rework needed)
+```
+
+### Completion Summary Comment
+```
+🧪 Test Verification Complete:
+• [X] test files created
+• [Y] test cases generated
+• [Z]% code coverage achieved
+• [A] issues found and resolved
+• [B] improvements made
+
+🔄 Status: [FINAL_LINEAR_STATUS] - Next: PR Creation
+```
+
+# Example Input
+
+```json
+{
+  "commit_segments": [
+    {
+      "id": "commit_1",
+      "files": ["src/services/AuthService.ts"],
+      "type": "feature",
+      "estimated_tests": ["Token generation", "Password validation", "User authentication"]
     }
+  ],
+  "code_changes": {
+    "modified_files": [
+      {
+        "path": "src/services/AuthService.ts",
+        "changes": "Added JWT authentication with password hashing",
+        "functions": ["generateToken", "validatePassword", "authenticateUser"]
+      }
+    ]
   },
-  timeout: 30000
-})
-
-// Returns:
-// {
-//   success: true,
-//   results: {
-//     totalTests: 12,
-//     passed: 11,
-//     failed: 1,
-//     skipped: 0,
-//     duration: 2340,
-//     coverage: {
-//       lines: 87.5,
-//       functions: 85.2,
-//       branches: 82.1,
-//       statements: 89.3
-//     }
-//   },
-//   failedTests: [
-//     {
-//       testName: "createUser should throw ValidationError for existing email",
-//       error: "Expected ValidationError to be thrown",
-//       stack: "Error: Expected ValidationError to be thrown...",
-//       file: "tests/auth/user-service.test.ts",
-//       line: 45
-//     }
-//   ],
-//   recommendations: [
-//     "Fix failing test in user creation validation",
-//     "Consider adding more edge case tests for password validation"
-//   ]
-// }
+  "test_framework": "jest",
+  "coverage_requirements": {
+    "minimum_coverage": 80,
+    "exclude_patterns": ["*.test.ts", "*.mock.ts"]
+  }
+}
 ```
 
-### Detect Regressions
-```typescript
-// Detect potential regressions in code changes
-const regressionAnalysis = await detect_regressions({
-  newCode: [
+# Example Output
+
+```json
+{
+  "generated_tests": [
     {
-      filePath: "src/auth/user-service.ts",
-      changes: "Modified authentication logic to use new token format"
+      "id": "test_1",
+      "file_path": "tests/services/AuthService.test.ts",
+      "type": "unit",
+      "functions_tested": ["generateToken", "validatePassword", "authenticateUser"],
+      "test_cases": [
+        {
+          "name": "should generate valid JWT token",
+          "type": "positive",
+          "setup": "const user = { id: '123', email: 'test@example.com' }",
+          "execution": "const token = AuthService.generateToken(user)",
+          "assertions": ["expect(token).toBeDefined()", "expect(typeof token).toBe('string')"]
+        },
+        {
+          "name": "should validate correct password",
+          "type": "positive", 
+          "setup": "const password = 'password123'",
+          "execution": "const result = AuthService.validatePassword(password, hashedPassword)",
+          "assertions": ["expect(result).toBe(true)"]
+        }
+      ]
     }
   ],
-  baselineTests: [
-    {
-      testName: "authenticateUser should accept valid tokens",
-      expectedResult: "User object",
-      criticality: "high"
+  "test_results": {
+    "total_tests": 15,
+    "passed": 14,
+    "failed": 1,
+    "skipped": 0,
+    "execution_time": "2.3 seconds",
+    "failures": [
+      {
+        "test_name": "should handle invalid token",
+        "error": "Expected function to throw",
+        "stack_trace": "Error: Invalid token format at AuthService.validateToken"
+      }
+    ]
+  },
+  "coverage_report": {
+    "overall_coverage": 85.5,
+    "file_coverage": {
+      "src/services/AuthService.ts": 92.3
     },
-    {
-      testName: "authenticateUser should reject expired tokens",
-      expectedResult: "AuthenticationError",
-      criticality: "high"
-    }
-  ],
-  regressionRules: [
-    "check for breaking API changes",
-    "validate return type consistency",
-    "ensure error handling preserved"
-  ],
-  severity: "high"
-})
-
-// Returns:
-// {
-//   regressionsDetected: true,
-//   regressions: [
-//     {
-//       type: "api_breaking_change",
-//       severity: "high",
-//       description: "Token format change may break existing clients",
-//       affectedTests: ["authenticateUser should accept valid tokens"],
-//       recommendation: "Maintain backward compatibility or create migration path"
-//     }
-//   ],
-//   riskAssessment: {
-//     overall: "high",
-//     impact: "Existing authentication flows",
-//   mitigation: [
-//     "Add backward compatibility layer",
-//     "Update client libraries",
-//     "Communicate breaking changes"
-//   ]
-//   }
-// }
+    "uncovered_lines": [45, 67],
+    "coverage_gaps": [
+      {
+        "file": "src/services/AuthService.ts",
+        "function": "handleTokenExpiry",
+        "reason": "Edge case not tested"
+      }
+    ]
+  }
+}
 ```
 
-## Agent Configuration
+# Test Generation Strategies
 
-- **Name**: TestVerificationAgent
-- **Mode**: subagent (specialized for test generation and validation)
-- **Permissions**: Read/write for test files and execution
-- **Temperature**: 0.2 (consistent and reliable test generation)
-- **Top-P**: 0.8
+## Unit Tests
+- Test individual functions and methods
+- Cover positive, negative, and edge cases
+- Mock external dependencies
+- Validate input/output contracts
 
-## Supported Test Frameworks
+## Integration Tests
+- Test component interactions
+- Validate data flow between modules
+- Test database operations
+- Verify API integrations
 
-### JavaScript/TypeScript
-- **Jest**: Popular testing framework with built-in mocking
-- **Vitest**: Fast unit test framework with Vite integration
-- **Mocha**: Flexible testing framework with assertion libraries
-- **Jasmine**: Behavior-driven development framework
+## End-to-End Tests
+- Test complete user workflows
+- Validate system behavior end-to-end
+- Test error handling paths
+- Verify performance characteristics
 
-### Python
-- **pytest**: Powerful testing framework with fixtures
-- **unittest**: Python's built-in testing framework
-- **nose2**: Extension of unittest with plugins
+# Test Case Types
 
-### Other Languages
-- **JUnit**: Java testing framework
-- **GoTest**: Go language testing
-- **RSpec**: Ruby testing framework
+## Positive Cases
+- Happy path scenarios
+- Valid inputs and expected outputs
+- Normal operating conditions
+- Success state validation
 
-## Test Generation Strategies
+## Negative Cases
+- Invalid inputs and error handling
+- Edge cases and boundary conditions
+- Failure scenarios and recovery
+- Security vulnerability testing
 
-### Code Analysis-Based Generation
-- Static code analysis for function signatures
-- Control flow analysis for test paths
-- Dependency analysis for mocking requirements
-- Type analysis for input validation
+## Edge Cases
+- Boundary value testing
+- Null/undefined handling
+- Empty data scenarios
+- Maximum/minimum values
 
-### Behavior-Based Generation
-- Analyze function behavior and side effects
-- Generate tests based on expected outcomes
-- Create boundary condition tests
-- Generate error handling tests
+# Framework Support
 
-### Coverage-Driven Generation
-- Identify uncovered code paths
-- Generate tests to increase coverage
-- Focus on critical code sections
-- Prioritize high-risk areas
+## Jest
+- Describe/it syntax
+- Mock functions and modules
+- Async/await testing
+- Snapshot testing
 
-## Test Quality Metrics
+## Vitest
+- Modern Jest-compatible API
+- Faster test execution
+- Built-in TypeScript support
+- Watch mode
 
-### Code Coverage
-- **Line Coverage**: Percentage of code lines executed
-- **Branch Coverage**: Percentage of conditional branches tested
-- **Function Coverage**: Percentage of functions called
-- **Statement Coverage**: Percentage of statements executed
+## Mocha
+- Flexible test runner
+- Chai assertions
+- Sinon for mocking
+- Custom reporters
 
-### Test Effectiveness
-- **Mutation Score**: Resistance to code mutations
-- **Fault Detection**: Ability to find real bugs
-- **Regression Detection**: Ability to catch regressions
-- **Maintainability**: Ease of test maintenance
+# Coverage Analysis
 
-## Integration Points
+## Metrics
+- **Line Coverage**: Percentage of executed lines
+- **Branch Coverage**: Percentage of executed branches
+- **Function Coverage**: Percentage of called functions
+- **Statement Coverage**: Percentage of executed statements
 
-- **CI/CD Pipelines**: GitHub Actions, GitLab CI, Jenkins
-- **Code Review Tools**: GitHub PR checks, Gerrit reviews
-- **Coverage Services**: Codecov, Coveralls, SonarQube
-- **Notification Systems**: Slack, Teams, Email alerts
-- **Project Management**: Jira, Linear, Asana integration
+## Reporting
+- Detailed coverage reports by file
+- Uncovered code identification
+- Coverage trend analysis
+- Integration with CI/CD pipelines
 
-## Error Handling
+# Integration Points
 
-The agent provides comprehensive error handling:
-- Test generation failures with detailed error messages
-- Test execution errors with stack traces
-- Framework compatibility issues
-- File system and permission errors
-- Network and dependency resolution failures
+- **CommitSegmentationAgent**: Receives commit segments for testing
+- **CodeWriterAgent**: Analyzes code changes for test requirements
+- **CI/CD Pipeline**: Integrates with automated testing
+- **Code Coverage Tools**: Generates coverage reports
 
-## Performance Optimization
+# Quality Assurance
 
-- **Parallel Test Execution**: Run tests concurrently
-- **Smart Test Selection**: Run only relevant tests
-- **Test Caching**: Cache test results and dependencies
-- **Incremental Testing**: Test only changed components
-- **Resource Management**: Optimize memory and CPU usage
+## Test Quality
+- Meaningful test descriptions
+- Proper setup and teardown
+- Comprehensive assertions
+- Clear error messages
 
-## Security Considerations
+## Performance
+- Efficient test execution
+- Parallel test running
+- Test result caching
+- Minimal overhead
 
-- **Test Data Security**: Sanitize test data and credentials
-- **Dependency Scanning**: Check test dependencies for vulnerabilities
-- **Access Control**: Restrict test execution permissions
-- **Audit Logging**: Log all test activities
-- **Secure Test Environments**: Isolated test execution
+# Error Handling
 
-## Monitoring and Analytics
-
-### Test Metrics
-- Test execution time trends
-- Pass/fail rates over time
-- Coverage improvement tracking
-- Test flakiness detection
-
-### Quality Metrics
-- Bug detection rates
-- Regression prevention effectiveness
-- Test maintenance overhead
-- Developer satisfaction scores
-
-## Dependencies
-
-- `@opencode-ai/plugin` - OpenCode plugin framework
-- Test framework adapters and parsers
-- Code analysis and AST parsing libraries
-- Coverage analysis tools
-- Static analysis and security scanning tools
-
-## Configuration Options
-
-### Test Generation
-- Default test framework selection
-- Coverage targets and thresholds
-- Test style and formatting preferences
-- Mock and stub generation rules
-
-### Execution Settings
-- Timeout configurations
-- Parallel execution limits
-- Environment setup requirements
-- Reporting and output formats
-
-## Testing
-
-The agent includes comprehensive test coverage:
-- Unit tests for test generation logic
-- Integration tests with multiple frameworks
-- Performance tests for large codebases
-- Security tests for test execution
-- End-to-end workflow tests
-
-## Best Practices
-
-### Test Generation
-- Generate meaningful and maintainable tests
-- Focus on critical functionality
-- Include edge cases and error conditions
-- Use appropriate assertion styles
-
-### Test Execution
-- Run tests in isolated environments
-- Use consistent test data
-- Implement proper cleanup procedures
-- Monitor test performance
-
-### Coverage Management
-- Aim for high but meaningful coverage
-- Focus on critical code paths
-- Address uncovered code systematically
-- Balance coverage with test quality
+- Handle test generation failures gracefully
+- Provide clear error messages for test failures
+- Support test debugging and troubleshooting
+- Maintain test suite stability

@@ -1,218 +1,112 @@
-# LinearCommentParserAgent - OpenCode Agent for Comment Analysis
+---
+name: LinearCommentParserAgent
+description: Parses Linear comments to extract actionable tasks and planning instructions.
+type: agent
+subagents: []
+upstream: []
+inputs:
+  - linear_comment_data
+  - issue_context
+outputs:
+  - parsed_tasks
+  - planning_instructions
+---
 
-## Overview
+# Purpose
 
-LinearCommentParserAgent is a specialized OpenCode agent that extracts actionable tasks and requirements from Linear comments. It analyzes comment content to identify specific tasks, assignees, priorities, and dependencies that can be processed by other agents in the OpenCode ecosystem.
+The `LinearCommentParserAgent` is responsible for analyzing Linear comments and extracting structured, actionable tasks and planning instructions. It bridges the gap between natural language comments in Linear issues and executable automation workflows.
 
-## Features
+# Tasks
 
-- **Comment Analysis**: Parses Linear comments for actionable items
-- **Task Extraction**: Identifies specific tasks with requirements
-- **Priority Detection**: Extracts priority levels from comment content
-- **Assignee Recognition**: Identifies mentioned users and assignees
-- **Dependency Mapping**: Finds task dependencies and relationships
-- **Format Support**: Handles various comment formats (Markdown, plain text)
-- **Context Awareness**: Maintains context across multiple comments
+1. **Parse Comment Content**: Analyze the raw text of Linear comments to identify actionable items.
+2. **Extract Tasks**: Identify specific tasks, assignees, priorities, and deadlines from comment text.
+3. **Identify Planning Instructions**: Extract planning directives, workflow instructions, and coordination requirements.
+4. **Structure Output**: Convert parsed information into structured JSON format for downstream agents.
+5. **Context Preservation**: Maintain context from the issue and related comments for accurate interpretation.
 
-## Available Commands
+# Example Input
 
-### Comment Analysis
-- `parse_comment` - Parse a single Linear comment for tasks
-  - Required: `commentBody` (string)
-  - Optional: `issueContext` (object) - Issue metadata for context
-  - Returns: Extracted tasks, assignees, priorities, dependencies
-
-- `parse_issue_comments` - Parse all comments on a Linear issue
-  - Required: `issueId` (string)
-  - Optional: `includeResolved` (boolean) - Include resolved comments
-  - Returns: Consolidated task list from all comments
-
-### Task Management
-- `extract_tasks` - Extract actionable tasks from comment text
-  - Required: `text` (string)
-  - Optional: `format` (string) - Output format (json, markdown, plain)
-  - Returns: Structured task list with metadata
-
-- `validate_task` - Validate extracted task for completeness
-  - Required: `task` (object)
-  - Returns: Validation result with missing elements
-
-### Context Analysis
-- `analyze_dependencies` - Find task dependencies in comments
-  - Required: `comments` (array)
-  - Returns: Dependency graph and relationships
-
-- `get_assignee_suggestions` - Suggest assignees based on comment content
-  - Required: `commentBody` (string)
-  - Optional: `teamMembers` (array) - Available team members
-  - Returns: Suggested assignees with confidence scores
-
-## Usage Examples
-
-### Parse a Single Comment
-```typescript
-// Parse comment for tasks
-const result = await parse_comment({
-  commentBody: "@john please implement the auth module by Friday. High priority. Depends on API design.",
-  issueContext: {
-    id: "ISSUE-123",
-    title: "User Authentication System"
-  }
-})
-
-// Returns:
-// {
-//   tasks: [
-//     {
-//       description: "implement the auth module",
-//       assignee: "john",
-//       priority: "high",
-//       deadline: "Friday",
-//       dependencies: ["API design"]
-//     }
-//   ],
-//   metadata: {
-//     taskCount: 1,
-//     hasAssignees: true,
-//     hasPriorities: true,
-//     hasDependencies: true
-//   }
-// }
-```
-
-### Extract Tasks from Text
-```typescript
-const tasks = await extract_tasks({
-  text: `
-  TODO: Add user login form
-  - Email field validation
-  - Password strength checker
-  - Remember me checkbox
-  
-  @sarah to review by next week
-  Priority: Medium
-  `,
-  format: "json"
-})
-```
-
-### Analyze Dependencies
-```typescript
-const dependencies = await analyze_dependencies({
-  comments: [
-    "Need to finish database schema before API endpoints",
-    "API endpoints depend on auth service completion",
-    "Frontend integration needs API documentation"
-  ]
-})
-```
-
-## Agent Configuration
-
-- **Name**: LinearCommentParserAgent
-- **Mode**: subagent (specialized for comment analysis)
-- **Permissions**: Read-only for Linear comments
-- **Temperature**: 0.3 (balanced creativity and accuracy)
-- **Top-P**: 0.8
-
-## Task Recognition Patterns
-
-The agent recognizes various task indicators:
-
-### Task Keywords
-- TODO, FIXME, HACK, NOTE
-- "need to", "should", "must"
-- "implement", "create", "add", "fix"
-- "review", "test", "document"
-
-### Priority Indicators
-- High: "urgent", "asap", "critical", "high priority"
-- Medium: "medium priority", "normal", "standard"
-- Low: "low priority", "nice to have", "when possible"
-
-### Deadline Patterns
-- "by Friday", "this week", "next sprint"
-- "EOD", "EOB", "COB"
-- Specific dates: "2024-01-15", "Jan 15"
-
-### Assignee Patterns
-- @mentions: @username, @team
-- Direct assignment: "John will handle", "assigned to Sarah"
-- Team references: "frontend team", "backend squad"
-
-## Integration Points
-
-- **Linear Plugin**: Uses Linear API to fetch comments
-- **Task Management**: Integrates with task tracking systems
-- **Team Management**: Connects with user/team directories
-- **Notification Systems**: Triggers notifications for assigned tasks
-
-## Error Handling
-
-The agent provides comprehensive error handling:
-- Invalid comment formats with helpful suggestions
-- Missing context with required field indicators
-- Network errors with retry logic
-- Permission errors with clear guidance
-
-## Performance Considerations
-
-- **Batch Processing**: Processes multiple comments efficiently
-- **Caching**: Caches parsed results for repeated analysis
-- **Rate Limiting**: Respects Linear API rate limits
-- **Incremental Parsing**: Only processes new/changed comments
-
-## Dependencies
-
-- `@opencode-ai/plugin` - OpenCode plugin framework
-- `@linear/sdk` - Linear SDK for API operations
-- Natural language processing libraries for text analysis
-- Pattern matching libraries for task extraction
-
-## Output Formats
-
-The agent supports multiple output formats:
-
-### JSON Format
 ```json
 {
-  "tasks": [...],
-  "metadata": {...},
-  "confidence": 0.95
+  "linear_comment_data": {
+    "id": "comment_123",
+    "body": "@team Please implement the user authentication feature. @john will handle the frontend, @jane will work on the API. This should be high priority and completed by Friday. Let's break this into: 1) Create login component, 2) Implement JWT validation, 3) Add user session management.",
+    "author": "manager_456",
+    "createdAt": "2024-01-15T10:00:00Z"
+  },
+  "issue_context": {
+    "title": "User Authentication Implementation",
+    "description": "Add complete user authentication system",
+    "team": "backend"
+  }
 }
 ```
 
-### Markdown Format
-```markdown
-## Extracted Tasks
+# Example Output
 
-### Task 1: Implement auth module
-- **Assignee**: @john
-- **Priority**: High
-- **Deadline**: Friday
-- **Dependencies**: API design
+```json
+{
+  "parsed_tasks": [
+    {
+      "id": "task_1",
+      "description": "Create login component",
+      "assignee": "john",
+      "priority": "high",
+      "deadline": "2024-01-19",
+      "type": "frontend"
+    },
+    {
+      "id": "task_2", 
+      "description": "Implement JWT validation",
+      "assignee": "jane",
+      "priority": "high",
+      "deadline": "2024-01-19",
+      "type": "backend"
+    },
+    {
+      "id": "task_3",
+      "description": "Add user session management", 
+      "assignee": "jane",
+      "priority": "high",
+      "deadline": "2024-01-19",
+      "type": "backend"
+    }
+  ],
+  "planning_instructions": {
+    "workflow": "sequential",
+    "coordination": "frontend-backend-integration",
+    "testing_required": true,
+    "review_process": "peer-review"
+  }
+}
 ```
 
-### Plain Text Format
-```
-Task: Implement auth module
-Assignee: john
-Priority: High
-Deadline: Friday
-Dependencies: API design
-```
+# Parsing Rules
 
-## Testing
+1. **Mention Detection**: Identify @mentions for assignees and teams
+2. **Priority Keywords**: Extract priority from terms like "urgent", "high priority", "low priority"
+3. **Deadline Extraction**: Parse dates and timeframes (Friday, EOD, 2 days, etc.)
+4. **Task Enumeration**: Identify numbered lists, bullet points, and task separators
+5. **Type Classification**: Categorize tasks as frontend, backend, testing, documentation, etc.
+6. **Workflow Instructions**: Extract coordination and sequencing requirements
 
-The agent includes comprehensive test coverage:
-- Unit tests for task extraction patterns
-- Integration tests with Linear API
-- Performance tests for large comment sets
-- Edge case handling tests
+# Integration Points
 
-## Monitoring
+- **Linear Plugin**: Receives comment data via webhook events
+- **HumanInLoopAgent**: Provides structured tasks for approval workflow
+- **SolutionPlannerAgent**: Supplies planning instructions for solution generation
+- **ParallelTaskCoordinatorAgent**: Enables task distribution across agents
 
-- Parse success/failure rates
-- Task extraction accuracy metrics
-- Performance benchmarks
-- Error pattern analysis
+# Error Handling
+
+- Handle malformed or ambiguous comment text gracefully
+- Provide confidence scores for extracted information
+- Flag unclear assignments or priorities for human clarification
+- Maintain original comment text for reference
+
+# Performance Considerations
+
+- Process comments in real-time via webhook triggers
+- Cache parsing results for repeated analysis
+- Support batch processing for multiple comments
+- Optimize for common comment patterns and formats
