@@ -280,7 +280,7 @@ export class LinearCRUD {
     }
     
     if (cleanedCount > 0) {
-      console.log(`Cleaned up ${cleanedCount} expired rate limit entries`)
+      //console.log(`Cleaned up ${cleanedCount} expired rate limit entries`)
     }
   }
 
@@ -299,7 +299,7 @@ export class LinearCRUD {
     }
     
     if (cleanedCount > 0) {
-      console.log(`Cleaned up ${cleanedCount} expired cache entries`)
+      //console.log(`Cleaned up ${cleanedCount} expired cache entries`)
     }
   }
 
