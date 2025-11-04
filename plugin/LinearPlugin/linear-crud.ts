@@ -108,6 +108,7 @@ export class LinearCRUD {
   async updateIssue(issueId: string, data: {
     title?: string
     description?: string
+    status?: string
     assigneeId?: string
     stateId?: string
     labelIds?: string[]
@@ -122,6 +123,7 @@ export class LinearCRUD {
     // Only include defined fields in update
     if (data.title !== undefined) updateData.title = data.title
     if (data.description !== undefined) updateData.description = data.description
+    if (data.status !== undefined) updateData.status = data.status
     
     // Handle null vs undefined - null means remove, undefined means don't change
     updateData.assigneeId = data.assigneeId 
@@ -205,30 +207,30 @@ export class LinearCRUD {
    */
   async addComment(issueId: string, body: string): Promise<Comment | undefined> {
     try {
-      console.log(`Adding comment to Linear issue:`, {
-        issueId,
-        bodyLength: body.length,
-        bodyPreview: body.substring(0, 100) + (body.length > 100 ? '...' : '')
-      })
+      // console.log(`Adding comment to Linear issue:`, {
+      //   issueId,
+      //   bodyLength: body.length,
+      //   bodyPreview: body.substring(0, 100) + (body.length > 100 ? '...' : '')
+      // })
 
       const comment = await this.createComment(issueId, body)
       
       if (comment) {
-        console.log(`Successfully added comment to Linear issue:`, {
-          issueId,
-          commentId: comment.id,
-          createdAt: comment.createdAt
-        })
+        // console.log(`Successfully added comment to Linear issue:`, {
+        //   issueId,
+        //   commentId: comment.id,
+        //   createdAt: comment.createdAt
+        // })
       }
       
       return comment
 
     } catch (error) {
-      console.error(`Failed to add comment to Linear issue:`, {
-        issueId,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        bodyLength: body.length
-      })
+      // console.error(`Failed to add comment to Linear issue:`, {
+      //   issueId,
+      //   error: error instanceof Error ? error.message : 'Unknown error',
+      //   bodyLength: body.length
+      // })
       throw error
     }
   }

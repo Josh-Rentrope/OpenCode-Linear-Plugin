@@ -98,6 +98,8 @@ export const LinearPlugin: Plugin = async (ctx) => {
           issueId: z.string().describe("Linear issue ID"),
           title: z.string().optional().describe("New title (optional)"),
           description: z.string().optional().describe("New description (optional)"),
+          statu: z.string().optional().describe("New Status (optional)"),
+
           assigneeId: z.string().optional().describe("New assignee ID (optional)"),
           priority: z.number().min(1).max(4).optional().describe("New priority 1-4 (optional)")
         },
