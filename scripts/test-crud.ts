@@ -9,19 +9,21 @@
  * for both issues and comments, with proper cleanup at the end.
  */
 
-import { linearCRUD } from '../plugin/LinearPlugin/linear-crud'
+import { getLinearCRUD } from '../plugin/LinearPlugin/linear-crud'
 
 async function testCRUD() {
-  console.log('🧪 Testing Linear CRUD Operations...\n')
+  console.log('🧪 Testing Enhanced Linear CRUD Operations...\n')
 
   try {
-    // ==================== ISSUE CRUD TESTS ====================
+    const crud = getLinearCRUD()
+    
+    // ==================== BASIC CRUD TESTS ====================
     
     // Test 1: Create issue
     console.log('1. Creating issue...')
-    const issue = await linearCRUD.createIssue({
+    const issue = await crud.createIssue({
       title: 'Test CRUD Issue',
-      description: 'Testing minimal CRUD operations'
+      description: 'Testing enhanced CRUD operations'
     })
     
     if (!issue) {
@@ -30,14 +32,18 @@ async function testCRUD() {
     }
     console.log(`✅ Created: ${issue.id} - ${issue.title}`)
 
-    // Test 2: Get issue
-    console.log('2. Retrieving issue...')
-    const retrieved = await linearCRUD.getIssue(issue.id)
-    console.log(`✅ Retrieved: ${retrieved?.title}`)
+    // Test 2: Get issue (with caching)
+    console.log('2. Retrieving issue (first time - from API)...')
+    const retrieved1 = await crud.getIssue(issue.id)
+    console.log(`✅ Retrieved: ${retrieved1?.title}`)
+    
+    console.log('3. Retrieving issue (second time - from cache)...')
+    const retrieved2 = await crud.getIssue(issue.id)
+    console.log(`✅ Retrieved: ${retrieved2?.title}`)
 
     // Test 3: Update issue
-    console.log('3. Updating issue...')
-    const updated = await linearCRUD.updateIssue(issue.id, {
+    console.log('4. Updating issue...')
+    const updated = await crud.updateIssue(issue.id, {
       title: 'Updated Test CRUD Issue'
     })
 
@@ -49,9 +55,9 @@ async function testCRUD() {
 
     // ==================== COMMENT CRUD TESTS ====================
     
-    // Test 4: Create comment
-    console.log('4. Creating comment...')
-    const comment = await linearCRUD.createComment(issue.id, 'Test comment')
+    // Test 5: Create comment
+    console.log('5. Creating comment...')
+    const comment = await crud.createComment(issue.id, 'Test comment')
 
     if (!comment) {
       console.error('❌ Comment creation failed')
@@ -59,20 +65,37 @@ async function testCRUD() {
     }
     console.log(`✅ Comment: ${comment.id}`)
 
-    // Test 5: List comments
-    console.log('5. Listing comments...')
-    const comments = await linearCRUD.listComments(issue.id)
+    // Test 6: List comments (with caching)
+    console.log('6. Listing comments...')
+    const comments = await crud.listComments(issue.id)
     console.log(`✅ Comments: ${comments.length}`)
+
+    // ==================== ENHANCED FEATURES TESTS ====================
+    
+    // Test 7: Rate limiting stats
+    console.log('7. Checking rate limiting stats...')
+    const rateStats = crud.getRateLimitStats()
+    console.log(`✅ Rate limits: ${rateStats.activeLimits} active, ${rateStats.totalRequests} requests`)
+    
+    // Test 8: Cache stats
+    console.log('8. Checking cache stats...')
+    const cacheStats = crud.getCacheStats()
+    console.log(`✅ Cache: ${cacheStats.size} entries, max size: ${cacheStats.maxSize}`)
+    
+    // Test 9: Workflow states (with caching)
+    console.log('9. Getting workflow states...')
+    const workflowStates = await crud.getWorkflowStates()
+    console.log(`✅ Workflow states: ${workflowStates.length} available`)
 
     // ==================== CLEANUP ====================
     
-    // Test 6: Delete comment
-    console.log('6. Cleaning up comment...')
-    await linearCRUD.deleteComment(comment.id)
+    // Test 10: Delete comment
+    console.log('10. Cleaning up comment...')
+    await crud.deleteComment(comment.id)
     
-    // Test 7: Delete issue
-    console.log('7. Cleaning up issue...')
-    await linearCRUD.deleteIssue(issue.id)
+    // Test 11: Delete issue
+    console.log('11. Cleaning up issue...')
+    await crud.deleteIssue(issue.id)
     console.log('✅ Cleanup complete')
 
   } catch (error) {
