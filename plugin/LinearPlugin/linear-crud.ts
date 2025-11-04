@@ -95,6 +95,34 @@ export class LinearCRUD {
   }
 
   /**
+   * Retrieve a specific issue by ID with full state information
+   * 
+   * @param issueId - Linear issue identifier
+   * @returns Issue object with state details or null if not found
+   */
+  async getIssueWithState(issueId: string): Promise<Issue | null> {
+    const client = await this.getClient()
+    const issue = await client.issue(issueId)
+    
+    if (!issue) return null
+    
+    // Try to fetch state information if available
+    if (issue.state && typeof issue.state === 'object' && 'id' in issue.state) {
+      try {
+        const state = await client.workflowState(issue.state.id)
+        return {
+          ...issue,
+          state: state
+        }
+      } catch (error) {
+        // If state fetch fails, return original issue
+      }
+    }
+    
+    return issue
+  }
+
+  /**
    * Update an existing issue
    * 
    * Supports partial updates - only provided fields will be modified.
@@ -108,7 +136,6 @@ export class LinearCRUD {
   async updateIssue(issueId: string, data: {
     title?: string
     description?: string
-    status?: string
     assigneeId?: string
     stateId?: string
     labelIds?: string[]
@@ -123,7 +150,6 @@ export class LinearCRUD {
     // Only include defined fields in update
     if (data.title !== undefined) updateData.title = data.title
     if (data.description !== undefined) updateData.description = data.description
-    if (data.status !== undefined) updateData.status = data.status
     
     // Handle null vs undefined - null means remove, undefined means don't change
     updateData.assigneeId = data.assigneeId 
@@ -291,6 +317,23 @@ export class LinearCRUD {
     if (!issue) throw new Error(`Issue ${issueId} not found`)
     const comments = await client.comments({ first, filter: { issue: { id: { eq: issueId } } } })
     return comments.nodes.map(node => node)
+  }
+
+  /**
+   * Get all available workflow states
+   * 
+   * @returns Array of workflow states
+   */
+  async getWorkflowStates(): Promise<any[]> {
+    const client = await this.getClient()
+    const states = await client.workflowStates()
+    return states.nodes.map(state => ({
+      id: state.id,
+      name: state.name,
+      type: state.type,
+      color: state.color,
+      position: state.position
+    }))
   }
 }
 
