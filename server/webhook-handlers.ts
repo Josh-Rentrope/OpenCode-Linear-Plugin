@@ -30,6 +30,7 @@ interface ExtendedWebhookPayload extends LinearWebhookPayload {
   updatedFrom?: any
 }
 import { webhookEventProcessor } from '../plugin/LinearPlugin/webhook-event-processor'
+import { getLinearCollaboration } from '../plugin/LinearPlugin/linear-collaboration'
 
 /**
  * Standardized handler response interface
@@ -217,6 +218,38 @@ async function handleIssueEvent(payload: ExtendedWebhookPayload): Promise<Handle
   // Process the issue event through the centralized event processor
   // This enables OpenCode integration, TUI streaming, and session management
   const processResult = await webhookEventProcessor.processIssueEvent(payload as any)
+  
+  // Track collaboration activity for Phase 3 features
+  try {
+    const collaboration = getLinearCollaboration()
+    await collaboration.trackActivity({
+      type: payload.action === 'create' ? 'issue_created' : 'issue_updated',
+      userId: payload.actor?.id || '',
+      userName: payload.actor?.name || 'Unknown',
+      userEmail: payload.actor?.email,
+      issueId: issueData.id,
+      issueTitle: issueData.title,
+      projectId: issueData.projectId,
+      projectName: issueData.project?.name,
+      metadata: {
+        action: payload.action,
+        previousState: updatedFrom?.state?.name,
+        newState: issueData.state?.name
+      }
+    })
+
+    // Trigger automated workflows
+    await collaboration.triggerAutomatedWorkflows({
+      type: payload.action === 'create' ? 'issue_created' : 'issue_updated',
+      userId: payload.actor?.id || '',
+      userName: payload.actor?.name || 'Unknown',
+      issueId: issueData.id,
+      issueTitle: issueData.title,
+      projectId: issueData.projectId
+    })
+  } catch (collaborationError) {
+    console.error('Collaboration tracking failed:', collaborationError)
+  }
   
   // Handle processing errors gracefully while maintaining webhook delivery success
   if (!processResult.success) {

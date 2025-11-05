@@ -18,6 +18,10 @@
     "test:integration": "ts-node scripts/test-integration.ts",
     "test:working": "ts-node scripts/test-working.ts",
     "test:webhook:legacy": "node scripts/test-webhook.js",
+    "test:phase3": "npm run test:phase3:project && npm run test:phase3:collaboration && npm run test:phase3:complete",
+    "test:phase3:project": "ts-node scripts/test-phase3-project-management.ts",
+    "test:phase3:collaboration": "ts-node scripts/test-phase3-collaboration.ts",
+    "test:phase3:complete": "ts-node scripts/test-phase3-complete.ts",
     "health:express": "curl http://localhost:3000/health",
     "health:netlify": "curl http://localhost:8888/health"
   },
@@ -40,7 +44,12 @@
     "webhook",
     "issues",
     "comments",
-    "integration"
+    "integration",
+    "project-management",
+    "collaboration",
+    "analytics",
+    "team-metrics",
+    "automated-workflows"
   ],
   "exports": {
     ".": {
@@ -58,6 +67,14 @@
     "./crud": {
       "types": "./plugin/linear-crud.ts",
       "import": "./plugin/linear-crud.ts"
+    },
+    "./project-management": {
+      "types": "./plugin/LinearPlugin/linear-project-management.ts",
+      "import": "./plugin/LinearPlugin/linear-project-management.ts"
+    },
+    "./collaboration": {
+      "types": "./plugin/LinearPlugin/linear-collaboration.ts",
+      "import": "./plugin/LinearPlugin/linear-collaboration.ts"
     }
   },
   "author": "OpenCode Contributors",
