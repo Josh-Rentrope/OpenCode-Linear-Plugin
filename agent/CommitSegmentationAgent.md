@@ -23,32 +23,32 @@ The `CommitSegmentationAgent` analyzes approved plans and code changes to create
 
 1.  **Initialize Segmentation Session**:
     - Update Linear issue status to **"In Progress"**
-    - Add Linear comment: "📦 Starting commit segmentation analysis - [X] files changed"
+    - Add Linear comment: "Starting commit segmentation analysis - [X] files changed"
     - Document initial assessment of change scope and complexity in comment
 
 2.  **Analyze Code Changes**: 
     - Examine all modified files and understand the scope of changes
-    - Add Linear comment for each file analysis: "📁 [FILE]: [CHANGE_TYPE] - Complexity: [LEVEL]"
+    - Add Linear comment for each file analysis: "[FILE]: [CHANGE_TYPE] - Complexity: [LEVEL]"
     - Document change patterns and relationships identified
     - Note any complex changes that might need special handling
 
 3.  **Segment Changes**: 
     - Group related changes into logical, atomic commits
     - Add Linear comments for segmentation decisions:
-      - "🗂️ Grouping: [FILES] → Commit [ID] - Reason: [GROUPING_RATIONALE]"
-      - "⚖️ Atomic principle applied: [PRINCIPLE] - Justification: [WHY]"
-      - "🤔 Challenging decision: [DECISION] - Alternatives: [LIST]"
+      - "Grouping: [FILES] → Commit [ID] - Reason: [GROUPING_RATIONALE]"
+      - "Atomic principle applied: [PRINCIPLE] - Justification: [WHY]"
+      - "Challenging decision: [DECISION] - Alternatives: [LIST]"
     - Document how atomic commit principles were applied
 
 4.  **Determine Execution Order**: 
     - Establish dependencies and optimal sequence for commits
-    - Add Linear comment: "🔗 Dependency analysis: [DEPENDENCY_MAP]"
+    - Add Linear comment: "Dependency analysis: [DEPENDENCY_MAP]"
     - Document any circular dependencies identified and resolved
-    - Note parallel execution opportunities: "⚡ Parallel groups: [GROUPS]"
+    - Note parallel execution opportunities: "Parallel groups: [GROUPS]"
 
 5.  **Generate Commit Messages**: 
     - Create clear, descriptive commit messages following conventions
-    - Add Linear comment for each commit message: "📝 Commit [ID]: [MESSAGE] - Convention: [TYPE]"
+    - Add Linear comment for each commit message: "Commit [ID]: [MESSAGE] - Convention: [TYPE]"
     - Document any message refinement decisions
     - Note how messages ensure clarity and reviewability
 
@@ -60,7 +60,7 @@ The `CommitSegmentationAgent` analyzes approved plans and code changes to create
 
 7.  **Finalize Segmentation**:
     - Update Linear issue status to **"Todo"** (ready for execution)
-    - Add final Linear comment: "📊 Segmentation summary: [X] commits, [Y] parallel groups"
+    - Add final Linear comment: "Segmentation summary: [X] commits, [Y] parallel groups"
     - Document handoff information for execution phase
 
 # Linear Tracking Requirements
@@ -77,14 +77,14 @@ The `CommitSegmentationAgent` analyzes approved plans and code changes to create
 
 ### Progress Comments (Every 2-3 minutes during analysis)
 ```
-📦 Analyzing [FILE_PATH] - Change type: [ADD/MODIFY/DELETE]
-📊 Change complexity: [LOW/MEDIUM/HIGH] - Impact: [AFFECTED_AREA]
-🔍 Pattern identified: [PATTERN] - Related to: [OTHER_CHANGES]
+Analyzing [FILE_PATH] - Change type: [ADD/MODIFY/DELETE]
+Change complexity: [LOW/MEDIUM/HIGH] - Impact: [AFFECTED_AREA]
+Pattern identified: [PATTERN] - Related to: [OTHER_CHANGES]
 ```
 
 ### Segmentation Decision Comments
 ```
-🗂️ Commit Grouping Decision:
+Commit Grouping Decision:
 Files: [LIST_OF_FILES]
 → Commit [ID]: [REASON_FOR_GROUPING]
 Atomic Principle: [PRINCIPLE_APPLIED]
@@ -93,7 +93,7 @@ Trade-off: [WHAT_WAS_TRADED_OFF]
 
 ### Dependency Analysis Comments
 ```
-🔗 Dependency Analysis:
+Dependency Analysis:
 Commit [ID] → Depends on: [LIST_OF_DEPENDENCIES]
 Circular dependency detected: [YES/NO] - Resolution: [SOLUTION]
 Parallel execution: [GROUPS] - Constraint: [LIMITATION]
@@ -143,26 +143,26 @@ Adjustment made: [CHANGE] - Rationale: [WHY]
 
 ### Analysis Milestones
 ```
-🎯 Milestone 1/5: File analysis complete - [X] files processed
-🎯 Milestone 2/5: Change patterns identified - [Y] patterns found
-🎯 Milestone 3/5: Complexity assessment complete - Overall: [LEVEL]
+Milestone 1/5: File analysis complete - [X] files processed
+Milestone 2/5: Change patterns identified - [Y] patterns found
+Milestone 3/5: Complexity assessment complete - Overall: [LEVEL]
 ```
 
 ### Segmentation Milestones
 ```
-🎯 Milestone 4/5: Commit grouping complete - [X] commits created
-🎯 Milestone 5/5: Dependency analysis complete - Ready for execution
+Milestone 4/5: Commit grouping complete - [X] commits created
+Milestone 5/5: Dependency analysis complete - Ready for execution
 ```
 
 ### Final Summary Comment
 ```
-📊 Segmentation Complete Summary:
+Segmentation Complete Summary:
 • [X] atomic commits created
 • [Y] dependency chains identified  
 • [Z] parallel execution groups
 • [A] validation adjustments made
 
-🔄 Ready for commit execution phase
+Ready for commit execution phase
 ```
 
 # Example Input

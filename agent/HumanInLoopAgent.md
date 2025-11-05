@@ -23,36 +23,36 @@ The `HumanInLoopAgent` is the critical approval gateway that ensures all automat
 
 1.  **Initialize Approval Session**:
     - Update Linear issue status to **"In Progress"**
-    - Add Linear comment: "👤 Starting human approval workflow - Plan ready for review"
+    - Add Linear comment: "Starting human approval workflow - Plan ready for review"
     - Document approval requirements and constraints in comment
 
 2.  **Present Plans for Review**: 
     - Format and display plans in a clear, actionable format for human review
-    - Add Linear comment: "📋 Plan presentation complete - [X] steps, [Y] files affected"
+    - Add Linear comment: "Plan presentation complete - [X] steps, [Y] files affected"
     - Document how plan clarity and actionability were ensured
     - Note any clarifications or context added for reviewer
 
 3.  **Handle Approval Channels**: 
     - Support multiple approval channels (Linear comments, OpenCode CLI, web UI)
-    - Add Linear comment: "📡 Approval channel: [CHANNEL] - Routing: [METHOD]"
+    - Add Linear comment: "Approval channel: [CHANNEL] - Routing: [METHOD]"
     - Document channel-specific formatting and interaction patterns
     - Note any channel limitations or special handling required
 
 4.  **Collect Human Decisions**: 
     - Capture approval, rejection, or modification requests with reasoning
-    - Add Linear comment for each decision: "📝 Decision received: [DECISION] - By: [REVIEWER]"
+    - Add Linear comment for each decision: "Decision received: [DECISION] - By: [REVIEWER]"
     - Document decision interpretation and validation
     - Note any ambiguous responses requiring clarification
 
 5.  **Maintain Audit Trail**: 
     - Log all approval decisions with timestamps, reviewers, and rationale
-    - Add Linear comment: "📊 Audit trail updated - [X] decisions recorded"
+    - Add Linear comment: "Audit trail updated - [X] decisions recorded"
     - Document audit trail completeness and integrity checks
     - Ensure traceability of all approval actions
 
 6.  **Version Control Plans**: 
     - Track plan iterations and changes through the approval process
-    - Add Linear comment for each version change: "🔄 Plan v[VERSION]: [CHANGES_MADE]"
+    - Add Linear comment for each version change: "Plan v[VERSION]: [CHANGES_MADE]"
     - Document how plan evolution was managed
     - Note any rollback or revision scenarios
 
@@ -76,14 +76,14 @@ The `HumanInLoopAgent` is the critical approval gateway that ensures all automat
 
 ### Progress Comments (Every 3-5 minutes during approval process)
 ```
-👤 Approval workflow in progress - Current stage: [STAGE]
-📋 Plan presentation: [FORMAT] - Clarity improvements: [IMPROVEMENTS]
-📡 Channel active: [CHANNEL] - Response time: [DURATION]
+Approval workflow in progress - Current stage: [STAGE]
+Plan presentation: [FORMAT] - Clarity improvements: [IMPROVEMENTS]
+Channel active: [CHANNEL] - Response time: [DURATION]
 ```
 
 ### Decision Collection Comments
 ```
-📝 Human Decision Received:
+Human Decision Received:
 Type: [APPROVE/REJECT/MODIFY]
 Reviewer: [NAME/ID]
 Timestamp: [TIME]
@@ -93,7 +93,7 @@ Conditions: [ANY_CONDITIONS]
 
 ### Audit Trail Comments
 ```
-📊 Audit Trail Update:
+Audit Trail Update:
 Event: [APPROVAL_ACTION]
 Actor: [REVIEWER/AGENT]
 Timestamp: [TIME]
@@ -103,7 +103,7 @@ New State: [NEW_STATUS]
 
 ### Version Control Comments
 ```
-🔄 Plan Version Update:
+Plan Version Update:
 Version: [OLD] → [NEW]
 Changes: [SUMMARY_OF_CHANGES]
 Reason: [WHY_CHANGED]
@@ -153,14 +153,14 @@ Impact: [EFFECT_ON_PLAN]
 ### Decision Types and Status Updates
 ```
 ✅ Approved → Status: "Todo" (ready for implementation)
-⚠️ Approved with changes → Status: "Todo" (modifications needed)
-❌ Rejected → Status: "Backlog" (needs rework)
-🔄 Needs clarification → Status: "In Progress" (awaiting response)
+Approved with changes → Status: "Todo" (modifications needed)
+Rejected → Status: "Backlog" (needs rework)
+Needs clarification → Status: "In Progress" (awaiting response)
 ```
 
 ### Decision Documentation
 ```
-📝 Approval Decision Summary:
+Approval Decision Summary:
 Decision: [APPROVE/REJECT/MODIFY]
 Reviewer: [NAME/ID]
 Timestamp: [DATETIME]
@@ -174,7 +174,7 @@ Next Steps: [IMMEDIATE_NEXT_ACTIONS]
 
 ### Complete Event Logging
 ```
-📊 Audit Event:
+Audit Event:
 Type: [APPROVAL_STAGE_CHANGE]
 Actor: [REVIEWER/AGENT]
 Timestamp: [ISO_TIMESTAMP]
@@ -185,7 +185,7 @@ Current State: [AFTER_STATE]
 
 ### Compliance and Governance
 ```
-🔒 Compliance Check:
+Compliance Check:
 Requirement: [POLICY_OR_RULE]
 Status: [COMPLIANT/NON_COMPLIANT]
 Action: [TAKEN_OR_REQUIRED]
@@ -196,11 +196,11 @@ Documentation: [REFERENCE_ID]
 
 ### Approval Milestones
 ```
-🎯 Milestone 1/5: Approval session initialized
-🎯 Milestone 2/5: Plan presented for review
-🎯 Milestone 3/5: Decision collection initiated
-🎯 Milestone 4/5: Audit trail maintained
-🎯 Milestone 5/5: Approval workflow completed
+Milestone 1/5: Approval session initialized
+Milestone 2/5: Plan presented for review
+Milestone 3/5: Decision collection initiated
+Milestone 4/5: Audit trail maintained
+Milestone 5/5: Approval workflow completed
 ```
 
 ### Final Summary Comment
@@ -212,7 +212,7 @@ Documentation: [REFERENCE_ID]
 • Modifications: [COUNT_IF_ANY]
 • Audit entries: [COUNT]
 
-🔄 Next phase: [NEXT_AGENT_OR_PHASE]
+Next phase: [NEXT_AGENT_OR_PHASE]
 ```
 
 # Example Input

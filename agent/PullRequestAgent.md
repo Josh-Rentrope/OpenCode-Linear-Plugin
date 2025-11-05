@@ -21,18 +21,18 @@ The final step. After a solution has been coded and has passed all tests, this a
 
 1.  **Initialize PR Draft Session**:
     - Update Linear issue status to **"In Progress"**
-    - Add Linear comment: "📝 Starting PR draft creation - Test verification: [STATUS]"
+    - Add Linear comment: "Starting PR draft creation - Test verification: [STATUS]"
     - Document PR requirements and review criteria in comment
 
 2.  **Verify Success**: 
     - Check that `test_report_json.passed` is `true`. If not, abort.
-    - Add Linear comment: "✅ Test verification passed - [X] tests, [Y]% coverage" OR "❌ Tests failed - aborting PR"
+    - Add Linear comment: "✅ Test verification passed - [X] tests, [Y]% coverage" OR "Tests failed - aborting PR"
     - Document abort scenarios and reasoning if tests failed
     - Note any test warnings or coverage concerns
 
 3.  **Read Plan**: 
     - Read the `solution_plan_md` to use as the body of the PR.
-    - Add Linear comment: "📖 Solution plan analyzed - [X] steps, [Y] files affected"
+    - Add Linear comment: "Solution plan analyzed - [X] steps, [Y] files affected"
     - Document how the solution plan will be presented
     - Note any additional context needed for reviewers
 
@@ -42,13 +42,13 @@ The final step. After a solution has been coded and has passed all tests, this a
         *   A link to the issue (e.g., "Closes #123").
         *   The `solution_plan_md` as the description of changes.
         *   A summary of the test results.
-    - Add Linear comment: "📋 PR draft formatted - Title: [TITLE], Sections: [LIST]"
+    - Add Linear comment: "PR draft formatted - Title: [TITLE], Sections: [LIST]"
     - Document how test results are presented and summarized
     - Note any additional sections added for clarity (screenshots, etc.)
 
 5.  **Output Draft**: 
     - Return the path to the `pr_draft_md`.
-    - Add Linear comment: "📄 PR draft complete - File: [PATH], Size: [CHARS]"
+    - Add Linear comment: "PR draft complete - File: [PATH], Size: [CHARS]"
     - Document any final review or improvements made
     - Update Linear issue status to **"Done"** (PR ready for submission)
     - Add final comment: "✅ PR workflow complete - Ready for manual submission"
@@ -66,10 +66,10 @@ The final step. After a solution has been coded and has passed all tests, this a
 
 ### Progress Comments (Every 2-3 minutes during PR creation)
 ```
-📝 PR Draft Creation: [CURRENT_STAGE]
-📖 Analyzing solution plan: [X] steps, [Y] files
-📋 Formatting PR structure: [SECTIONS] - Style: [FORMAT]
-📊 Incorporating test results: [PASSED]/[FAILED] - Coverage: [PERCENTAGE]%
+PR Draft Creation: [CURRENT_STAGE]
+Analyzing solution plan: [X] steps, [Y] files
+Formatting PR structure: [SECTIONS] - Style: [FORMAT]
+Incorporating test results: [PASSED]/[FAILED] - Coverage: [PERCENTAGE]%
 ```
 
 ### Test Verification Comments
@@ -80,7 +80,7 @@ Coverage: [PERCENTAGE]%
 Duration: [TIME]
 Quality: [LEVEL]
 
-❌ Test Verification Failed:
+Test Verification Failed:
 Issues: [COUNT] critical
 Coverage: [PERCENTAGE]% (below [REQUIREMENT]%)
 Action: Aborting PR - Fixes needed
@@ -88,7 +88,7 @@ Action: Aborting PR - Fixes needed
 
 ### PR Formatting Comments
 ```
-📋 PR Structure Decisions:
+PR Structure Decisions:
 Title: "Fixes #[ISSUE]: [BRIEF_DESCRIPTION]"
 Body: [STRUCTURE] sections
 Test Summary: [FORMAT]
@@ -132,7 +132,7 @@ Additional Context: [INCLUDED_ELEMENTS]
 
 ### Title Generation Comments
 ```
-📝 PR Title Decision:
+PR Title Decision:
 Format: "Fixes #[ISSUE]: [BRIEF_DESCRIPTION]"
 Convention: [PROJECT_STANDARD]
 Clarity: [ASSESSMENT]
@@ -141,7 +141,7 @@ SEO: [KEYWORDS_INCLUDED]
 
 ### Content Structure Comments
 ```
-📋 Content Structure Decisions:
+Content Structure Decisions:
 Sections: [LIST_OF_SECTIONS]
 Order: [SEQUENCE_RATIONALE]
 Test Integration: [METHOD]
@@ -161,30 +161,30 @@ Format Compliance: [STANDARD_FOLLOWED]
 
 ### PR Creation Milestones
 ```
-🎯 Milestone 1/4: Test verification complete
-🎯 Milestone 2/4: Solution plan analyzed
-🎯 Milestone 3/4: PR draft formatted
-🎯 Milestone 4/4: Quality validation complete
+Milestone 1/4: Test verification complete
+Milestone 2/4: Solution plan analyzed
+Milestone 3/4: PR draft formatted
+Milestone 4/4: Quality validation complete
 ```
 
 ### Final Status Updates
 ```
 ✅ PR Ready → Status: "Done" (Ready for manual submission)
-❌ Tests Failed → Status: "In Progress" (Return to testing)
-⚠️ Quality Issues → Status: "Todo" (Improvements needed)
+Tests Failed → Status: "In Progress" (Return to testing)
+Quality Issues → Status: "Todo" (Improvements needed)
 ```
 
 ### Completion Summary Comment
 ```
-📝 PR Draft Complete Summary:
+PR Draft Complete Summary:
 • Title: "[PR_TITLE]"
 • File: "[DRAFT_PATH]"
 • Sections: [COUNT]
 • Test Results: [SUMMARY]
 • Quality Score: [LEVEL]
 
-🔄 Status: "Done" - Ready for manual PR submission
-📋 Manual Steps: [SUBMISSION_INSTRUCTIONS]
+Status: "Done" - Ready for manual PR submission
+Manual Steps: [SUBMISSION_INSTRUCTIONS]
 ```
 
 # Example Input

@@ -25,30 +25,30 @@ The `TestVerificationAgent` automatically generates comprehensive tests for code
 
 1.  **Initialize Test Verification Session**:
     - Update Linear issue status to **"In Progress"**
-    - Add Linear comment: "🧪 Starting test verification - [X] commits to test"
+    - Add Linear comment: "Starting test verification - [X] commits to test"
     - Document testing requirements and framework analysis in comment
 
 2.  **Analyze Code Changes**: 
     - Examine modified files to understand functionality and testing requirements
-    - Add Linear comment for each file analysis: "📁 [FILE]: [FUNCTIONS] - Test complexity: [LEVEL]"
+    - Add Linear comment for each file analysis: "[FILE]: [FUNCTIONS] - Test complexity: [LEVEL]"
     - Document functions/methods that need test coverage
     - Note any testing challenges or special requirements identified
 
 3.  **Generate Test Cases**: 
     - Create appropriate unit tests, integration tests, and end-to-end tests
-    - Add Linear comment: "📝 Test generation strategy: [APPROACH] - Framework: [FRAMEWORK]"
+    - Add Linear comment: "Test generation strategy: [APPROACH] - Framework: [FRAMEWORK]"
     - Document test case design decisions and coverage goals
     - Note any mocking requirements or test setup challenges
 
 4.  **Execute Tests**: 
     - Run generated tests and capture results
-    - Add Linear comment for test execution: "🏃 Test execution: [PASSED]/[FAILED] - Duration: [TIME]"
+    - Add Linear comment for test execution: "Test execution: [PASSED]/[FAILED] - Duration: [TIME]"
     - Document any test failures and debugging efforts
-    - Add failure analysis comment: "❌ Test failure: [TEST_NAME] - Issue: [PROBLEM] - Fix: [SOLUTION]"
+    - Add failure analysis comment: "Test failure: [TEST_NAME] - Issue: [PROBLEM] - Fix: [SOLUTION]"
 
 5.  **Analyze Coverage**: 
     - Calculate test coverage and identify gaps
-    - Add Linear comment: "📊 Coverage analysis: [PERCENTAGE]% - [X] lines uncovered"
+    - Add Linear comment: "Coverage analysis: [PERCENTAGE]% - [X] lines uncovered"
     - Document uncovered code areas and improvement suggestions
     - Note any coverage requirements that weren't met
 
@@ -72,23 +72,23 @@ The `TestVerificationAgent` automatically generates comprehensive tests for code
 
 ### Progress Comments (Every 2-3 minutes during testing)
 ```
-🧪 Test Analysis: [FILE_PATH] - Functions: [COUNT] - Complexity: [LEVEL]
-📝 Generating tests: [TYPE] - Framework: [FRAMEWORK] - Strategy: [APPROACH]
-🏃 Running tests: [CURRENT_COUNT]/[TOTAL] - Time: [ELAPSED]
-📊 Coverage: [PERCENTAGE]% - Lines: [COVERED]/[TOTAL]
+Test Analysis: [FILE_PATH] - Functions: [COUNT] - Complexity: [LEVEL]
+Generating tests: [TYPE] - Framework: [FRAMEWORK] - Strategy: [APPROACH]
+Running tests: [CURRENT_COUNT]/[TOTAL] - Time: [ELAPSED]
+Coverage: [PERCENTAGE]% - Lines: [COVERED]/[TOTAL]
 ```
 
 ### Test Execution Comments
 ```
-🏃 Test Results:
+Test Results:
 ✅ Passed: [COUNT] - Duration: [TIME]
-❌ Failed: [COUNT] - Issues: [PROBLEMS]
-⚠️ Skipped: [COUNT] - Reason: [WHY]
+Failed: [COUNT] - Issues: [PROBLEMS]
+Skipped: [COUNT] - Reason: [WHY]
 ```
 
 ### Failure Analysis Comments
 ```
-❌ Test Failure Analysis:
+Test Failure Analysis:
 Test: [TEST_NAME]
 Error: [ERROR_MESSAGE]
 Location: [FILE:LINE]
@@ -99,7 +99,7 @@ Re-test: [PASSED/FAILED]
 
 ### Coverage Comments
 ```
-📊 Coverage Report:
+Coverage Report:
 Overall: [PERCENTAGE]%
 Files: [COVERED]/[TOTAL]
 Uncovered Lines: [LIST]
@@ -142,7 +142,7 @@ Gaps: [IMPROVEMENT_AREAS]
 
 ### Test Strategy Comments
 ```
-🧪 Test Strategy Decision:
+Test Strategy Decision:
 Chose: [UNIT/INTEGRATION/E2E] testing
 Rationale: [WHY_THIS_APPROACH]
 Framework: [FRAMEWORK] - Reason: [SELECTION_CRITERIA]
@@ -162,30 +162,30 @@ Improvements Made: [CHANGES]
 
 ### Testing Milestones
 ```
-🎯 Milestone 1/5: Code analysis complete - [X] functions identified
-🎯 Milestone 2/5: Test generation complete - [Y] test cases created
-🎯 Milestone 3/5: Test execution complete - [PASSED]/[FAILED] results
-🎯 Milestone 4/5: Coverage analysis complete - [PERCENTAGE]% coverage
-🎯 Milestone 5/5: Validation complete - Quality: [LEVEL]
+Milestone 1/5: Code analysis complete - [X] functions identified
+Milestone 2/5: Test generation complete - [Y] test cases created
+Milestone 3/5: Test execution complete - [PASSED]/[FAILED] results
+Milestone 4/5: Coverage analysis complete - [PERCENTAGE]% coverage
+Milestone 5/5: Validation complete - Quality: [LEVEL]
 ```
 
 ### Final Status Updates
 ```
 ✅ All Tests Pass → Status: "Todo" (Ready for PR)
-⚠️ Some Tests Fail → Status: "In Progress" (Fixes needed)
-❌ Critical Failures → Status: "Backlog" (Major rework needed)
+Some Tests Fail → Status: "In Progress" (Fixes needed)
+Critical Failures → Status: "Backlog" (Major rework needed)
 ```
 
 ### Completion Summary Comment
 ```
-🧪 Test Verification Complete:
+Test Verification Complete:
 • [X] test files created
 • [Y] test cases generated
 • [Z]% code coverage achieved
 • [A] issues found and resolved
 • [B] improvements made
 
-🔄 Status: [FINAL_LINEAR_STATUS] - Next: PR Creation
+Status: [FINAL_LINEAR_STATUS] - Next: PR Creation
 ```
 
 # Example Input

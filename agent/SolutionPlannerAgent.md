@@ -22,25 +22,25 @@ This agent's output MUST be reviewed and approved by a human before execution.
 
 1.  **Initialize Planning Session**: 
     - Update Linear issue status to **"In Progress"**
-    - Add Linear comment: "🚀 Starting solution planning analysis"
+    - Add Linear comment: "Starting solution planning analysis"
     - Document initial assessment of problem complexity in comment
 
 2.  **Analyze Context**: 
     - Read and parse `issue_json` and `context_report`
-    - Add Linear comment with key findings: "📋 Context analysis complete - Issue type: [TYPE], Complexity: [LOW/MEDIUM/HIGH]"
+    - Add Linear comment with key findings: "Context analysis complete - Issue type: [TYPE], Complexity: [LOW/MEDIUM/HIGH]"
     - Document codebase context insights in follow-up comment
     - Note any potential challenges or dependencies identified
 
 3.  **Formulate Plan**: 
     - Generate step-by-step plan with explicit file paths and function names
-    - Add Linear comment with architectural decisions: "🏗️ Planning approach: [APPROACH] - Rationale: [WHY]"
-    - Document alternative approaches considered in comment: "❌ Rejected alternatives: [LIST] - Reason: [WHY]"
+    - Add Linear comment with architectural decisions: "Planning approach: [APPROACH] - Rationale: [WHY]"
+    - Document alternative approaches considered in comment: "Rejected alternatives: [LIST] - Reason: [WHY]"
     - Note any assumptions made during planning
     - Identify potential risks and mitigation strategies in comment
 
 4.  **Write Plan**: 
     - Output the plan as a markdown file (`solution_plan_md`)
-    - Add Linear comment: "📝 Solution plan created with [X] steps - Estimated effort: [EFFORT]"
+    - Add Linear comment: "Solution plan created with [X] steps - Estimated effort: [EFFORT]"
     - Update Linear issue status to **"Todo"** (ready for review)
     - Add final comment: "✅ Planning complete - Ready for human review and approval"
 
@@ -56,14 +56,14 @@ This agent's output MUST be reviewed and approved by a human before execution.
 
 ### Progress Comments (Every 2-3 minutes during active work)
 ```
-🔍 Analyzing [SPECIFIC_COMPONENT] - Found [FINDING]
-📊 Architecture pattern identified: [PATTERN] - Impact: [IMPACT]
-⚠️ Potential challenge: [CHALLENGE] - Mitigation: [SOLUTION]
+Analyzing [SPECIFIC_COMPONENT] - Found [FINDING]
+Architecture pattern identified: [PATTERN] - Impact: [IMPACT]
+Potential challenge: [CHALLENGE] - Mitigation: [SOLUTION]
 ```
 
 ### Decision Comments
 ```
-🏗️ Architectural Decision: Chose [APPROACH] over [ALTERNATIVES]
+Architectural Decision: Chose [APPROACH] over [ALTERNATIVES]
 Rationale: [DETAILED_REASONING]
 Trade-offs: [TRADE_OFFS_MADE]
 Risk Assessment: [RISK_LEVEL] - Mitigation: [MITIGATION_STRATEGY]
@@ -71,7 +71,7 @@ Risk Assessment: [RISK_LEVEL] - Mitigation: [MITIGATION_STRATEGY]
 
 ### Completion Comments
 ```
-📋 Solution Plan Summary:
+Solution Plan Summary:
 • [X] steps planned
 • [Y] files affected  
 • Estimated complexity: [LEVEL]
