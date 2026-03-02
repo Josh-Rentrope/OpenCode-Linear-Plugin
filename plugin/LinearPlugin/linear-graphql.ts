@@ -387,3 +387,72 @@ export async function updateIssue(id: string, input: {
 
   return response.data.issueUpdate.issue
 }
+
+/**
+ * GraphQL mutation for updating a project milestone
+ */
+const UPDATE_PROJECT_MILESTONE_MUTATION = `
+  mutation UpdateProjectMilestone($id: String!, $input: ProjectMilestoneUpdateInput!) {
+    projectMilestoneUpdate(id: $id, input: $input) {
+      success
+      projectMilestone {
+        id
+        name
+        description
+        targetDate
+        sortOrder
+      }
+    }
+  }
+`
+
+/**
+ * Update a project milestone using raw HTTP GraphQL request
+ * 
+ * Bypasses the Linear SDK entirely to avoid serialization issues in OpenCode
+ * 
+ * @param id - Milestone ID
+ * @param input - Milestone update input
+ * @returns Promise resolving to success status
+ */
+export async function updateProjectMilestone(id: string, input: {
+  name?: string
+  description?: string
+  targetDate?: string
+  sortOrder?: number
+}): Promise<boolean> {
+  // Get API key from environment
+  const apiKey = process.env.LINEAR_API_KEY
+  if (!apiKey) {
+    throw new Error('LINEAR_API_KEY environment variable not set')
+  }
+
+  // Make raw HTTP request to Linear GraphQL API
+  const response = await fetch('https://api.linear.app/graphql', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': apiKey
+    },
+    body: JSON.stringify({
+      query: UPDATE_PROJECT_MILESTONE_MUTATION,
+      variables: { id, input }
+    })
+  })
+
+  if (!response.ok) {
+    throw new Error(`HTTP error: ${response.status} ${response.statusText}`)
+  }
+
+  const result = await response.json()
+
+  if (result.errors) {
+    throw new Error(`GraphQL errors: ${result.errors.map((e: any) => e.message).join(', ')}`)
+  }
+
+  if (!result.data?.projectMilestoneUpdate?.success) {
+    throw new Error('Failed to update project milestone')
+  }
+
+  return true
+}

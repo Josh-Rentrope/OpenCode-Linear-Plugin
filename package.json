@@ -1,6 +1,6 @@
 {
   "name": "@opencode-ai/linear-plugin",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Linear integration plugin for OpenCode with CRUD operations and webhook support",
   "main": "plugin/index.ts",
   "types": "plugin/index.ts",
